@@ -23,6 +23,7 @@ jobs:
     #       ${{ runner.os }}-pip-
     - name: Install dependencies
       run: |
+        python3 -m pip install --upgrade pip
         pip install -e '.[test]'
     - name: Run tests
       run: |
