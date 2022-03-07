@@ -42,6 +42,7 @@ class Plotter:
             #### Plot Frequencies ####
             freq = plot_frequencies(sample_dict, self.start, self.end, color=self.colors[i])
             self.fig.add_traces(freq, rows=[2,2], cols=[1,1])
+            # self.fig.update_yaxes(visible=False, row= 2, col=1)
             self.fig.update_xaxes(visible=False, row=i + 2, col=1)
     
             #### Plot Reads ####
@@ -65,4 +66,3 @@ class Plotter:
 
         self.fig.update_xaxes(visible=True, row=i + 3, col=1)
         self.fig.update_xaxes(range=[self.start, self.end],tickformat=',d',title_text="Coordinate")
-        self.fig.update_layout(height=2000, width=1500)

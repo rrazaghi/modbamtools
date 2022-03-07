@@ -15,12 +15,14 @@ pio.templates.default = "simple_white"
 
 
 
-def binerize_mod_call(call):
+def binerize_mod_call(call,min_prob=0.5, max_prob=0.5):
     prob = call/255
-    if prob < 0.5:
+    if prob < min_prob:
         return 0
-    elif prob > 0.5:
+    elif prob > max_prob:
         return 1 
+    else:
+        return -1
     
     
 def overlaps(a, b):
@@ -103,7 +105,7 @@ def SetColor(x):
         return "red"
 #         return "#DD4765"
 
-def process_bam(bam, chrom, start, end,tag_name=None, tag_value =None):
+def process_bam(bam, chrom, start, end,tag_name=None, tag_value =None,min_prob=0.5, max_prob=0.5):
 #     tag_name = "HP"
 #     tag_value = 2
     dict_per_read_mod = {}
@@ -116,14 +118,18 @@ def process_bam(bam, chrom, start, end,tag_name=None, tag_value =None):
                 for pos_mod in read.mod_sites:
                     qname, rpos, qpos, strand, mod_strand, cbase, mbase, score = pos_mod
                     if strand == "-":
-                        mapped_modbase[rpos - 1] = binerize_mod_call(score)
+                        call = binerize_mod_call(score,min_prob,max_prob)
+                        if call != -1:
+                            mapped_modbase[rpos - 1] = call
                     else:
-                        mapped_modbase[rpos] = binerize_mod_call(score)
+                        call = binerize_mod_call(score,min_prob,max_prob)
+                        if call != -1:
+                            mapped_modbase[rpos] = call
                 dict_per_read_mod[read.query_name] = [read_len,(read_start,read_end),collections.OrderedDict(sorted(mapped_modbase.items()))]
                 
     return dict_per_read_mod
 
-def get_reads(bams, chrom, start, end, hap=None, strand=None, samp_names = None):
+def get_reads(bams, chrom, start, end, hap=None, strand=None, samp_names = None, min_prob=0.5, max_prob=0.5):
 
     dicts = []
     if hap:
@@ -141,8 +147,8 @@ def get_reads(bams, chrom, start, end, hap=None, strand=None, samp_names = None)
                 titles.append(samp + " haplotype 2")
 
         for bam in bams:
-            reads_hp1 = process_bam(bam,chrom,start,end,tag_name="HP", tag_value=1)
-            reads_hp2 = process_bam(bam,chrom,start,end,tag_name="HP", tag_value=2)
+            reads_hp1 = process_bam(bam,chrom,start,end,tag_name="HP", tag_value=1,min_prob=min_prob,max_prob=max_prob)
+            reads_hp2 = process_bam(bam,chrom,start,end,tag_name="HP", tag_value=2,min_prob=min_prob,max_prob=max_prob)
             dicts.append(reads_hp1)
             dicts.append(reads_hp2)
 
@@ -155,7 +161,7 @@ def get_reads(bams, chrom, start, end, hap=None, strand=None, samp_names = None)
         if samp_names:
             titles = samp_names
         for bam in bams:
-            reads = process_bam(bam,chrom,start,end)
+            reads = process_bam(bam,chrom,start,end,min_prob=min_prob,max_prob=max_prob)
             dicts.append(reads)
 
     return dicts, titles
