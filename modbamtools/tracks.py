@@ -1,21 +1,21 @@
 from modbamtools.utils import *
 
-def parse_bigwig(bigwig_path, chrom, start,end):
+# def parse_bigwig(bigwig_path, chrom, start,end):
     
-    bw = pyBigWig.open(bigwig_path)
-    x = list(range(start,end))
-    y = bw.values(chrom, start, end)
+#     # bw = pyBigWig.open(bigwig_path)
+#     x = list(range(start,end))
+#     y = bw.values(chrom, start, end)
     
-    return go.Scattergl(
-        x=x,
-        y=y,
-        mode='lines',
-        marker=dict(
-            size=6,
-            color="goldenrod",
-        ),
-        name=''
-    )
+#     return go.Scattergl(
+#         x=x,
+#         y=y,
+#         mode='lines',
+#         marker=dict(
+#             size=6,
+#             color="goldenrod",
+#         ),
+#         name=''
+#     )
     
     
 def plot_frequencies(dict_per_read_mod, start, end, color):

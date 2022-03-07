@@ -13,6 +13,7 @@ Install this tool using `pip`:
 
     $ pip install modbamtools
 
+Install directly from 
 ## Usage
 
 Usage instructions go here.
