@@ -63,7 +63,7 @@ def calc_rows_h(dicts):
     for read_dict in dicts:
         num_reads.append(len(read_dict))
 
-    row_h = list(0.85 * np.array(num_reads)/sum(num_reads))
+    row_h = list(0.7 * np.array(num_reads)/sum(num_reads))
 
     return row_h
 
