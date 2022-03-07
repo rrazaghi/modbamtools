@@ -32,6 +32,7 @@ def plot(bams,region,gtf, samples, hap, out, can_prob, mod_prob, height, width, 
     chrom = region.strip().split(':')[0]
     start = int(region.strip().split(':')[1].split('-')[0])
     end = int(region.strip().split(':')[1].split('-')[1])
+    samples = [s for s in samples.strip().split(',')]
     dicts, titles = get_reads(bams, chrom, start, end, hap=hap, samp_names= samples, min_prob=can_prob, max_prob=mod_prob)
 
     fig = Plotter(dicts=dicts,samp_names=titles,gtf=gtf,chrom=chrom,start=start, end=end)
