@@ -2,6 +2,6 @@ click==8.0.4
 pysam==0.18.0
 scipy==1.5.0
 pandas==1.1.1
-numpy==1.22.2
-plotly==5.6.0
+numpy==1.19.2
+plotly==5.5.0
 modbampy==0.5.0
