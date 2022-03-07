@@ -40,6 +40,7 @@ Options:
   -g, --gtf PATH        gtf file in .gz sorted and tabix  [required]
   -s, --samples TEXT    sample names per each bam input
   -hp, --hap            Reads will be grouped according to HP tag in bam
+  -st, --strands        Reads will be grouped by strand in bam
   -o, --out PATH        output path for html plot  [required]
   -p, --prefix TEXT     file name for output
   -f, --fmt TEXT        format of output file (png, html, svg, pdf)
