@@ -11,15 +11,6 @@ def get_long_description():
     ) as fp:
         return fp.read()
 
-def read_requirements(file_name):
-    with io.open(
-        os.path.join(os.path.dirname(__file__), file_name), encoding="utf-8"
-    ) as req:
-        content = req.read()
-        requirements = content.split('\n')
-
-    return requirements
-
 
 setup(
     name="modbamtools",
@@ -40,7 +31,8 @@ setup(
         [console_scripts]
         modbamtools=modbamtools.cli:cli
     """,
-    install_requires=read_requirements("requirements.txt"),
+    install_requires=["click==8.0.4", "pysam==0.18.0","scipy==1.5.0","pandas==1.1.1","numpy==1.19.2",
+    "plotly==5.5.0", "modbampy==0.5.0", "kaleido==0.2.1"],
     extras_require={
         "test": ["pytest"]
     },
