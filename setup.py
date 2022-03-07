@@ -1,6 +1,6 @@
 from setuptools import setup, find_packages
 import os
-
+import io
 VERSION = "0.1.0"
 
 
@@ -11,8 +11,10 @@ def get_long_description():
     ) as fp:
         return fp.read()
 
-def read_requirements():
-    with open('requirements.txt', 'r') as req:
+def read_requirements(file_name):
+    with io.open(
+        os.path.join(os.path.dirname(__file__), file_name), encoding="utf-8"
+    ) as req:
         content = req.read()
         requirements = content.split('\n')
 
@@ -38,7 +40,7 @@ setup(
         [console_scripts]
         modbamtools=modbamtools.cli:cli
     """,
-    install_requires=read_requirements(),
+    install_requires=read_requirements("requirements.txt"),
     extras_require={
         "test": ["pytest"]
     },
