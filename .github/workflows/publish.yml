@@ -3,6 +3,10 @@ name: Publish Python Package
 on:
   release:
     types: [created]
+    branches:
+      - main
+    tags:
+      - 'v*'
 
 jobs:
   test:
