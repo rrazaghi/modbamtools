@@ -26,7 +26,7 @@ class Plotter:
 
         # self.tracks_titles = ["Genes","Enhancers","Methylation frequency plots"]
         self.fig = make_subplots(rows=self.num_tracks, cols=1, shared_xaxes=True,
-        vertical_spacing=0.02,row_heights=self.row_heights,
+        vertical_spacing=0.04,row_heights=self.row_heights,
         subplot_titles=empty_titles + samp_names )
     def plot_tracks(self):
         """
@@ -75,7 +75,7 @@ class Plotter:
 
         self.fig.update_xaxes(visible=True, row=i-1, col=1)
         self.fig.update_xaxes(range=[self.start, self.end],tickformat=',d',title_text="Coordinate")   
-
+        self.fig.update_layout(height=self.plot_height)
     # def plot(self):
     #     """
     #     Plot reads and sample frequencies

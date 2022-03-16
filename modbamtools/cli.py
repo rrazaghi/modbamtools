@@ -14,10 +14,10 @@ def listify(ctx, param, value):
 @cli.command(name="plot")
 @click.argument("bams",nargs=-1,type=click.Path(exists=True),required=True)
 @click.option('-r','--region', required=True, type=str, help='Region of interest. example: chr21:1-1000')
-@click.option('-g','--gtf', callback=listify,is_flag=False,default=None,required=False, type=click.Path(exists=True), help='make gene tracks from sorted and tabix gtf files')
-@click.option('-b','--bed', callback=listify,is_flag=False,default=None,required=False, type=click.Path(exists=True), help='make tracks from sorted and tabix bed files. This will plot each interval as a rectangle (similar to gtf)')
-@click.option('-bw','--bigwig',callback=listify,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='make a track from bigwig files')
-@click.option('-bd','--bedgraph',callback=listify,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='make a track from bigwig files')
+@click.option('-g','--gtf', multiple=True,is_flag=False,default=None,required=False, type=click.Path(exists=True), help='make gene tracks from sorted and tabix gtf files')
+@click.option('-b','--bed', multiple=True,is_flag=False,default=None,required=False, type=click.Path(exists=True), help='make tracks from sorted and tabix bed files. This will plot each interval as a rectangle (similar to gtf)')
+@click.option('-bw','--bigwig',multiple=True,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='make a track from bigwig files')
+@click.option('-bd','--bedgraph',multiple=True,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='make a track from bigwig files')
 @click.option('-s','--samples', is_flag=False, default=None, type=str, help='Sample names per each bam input')
 @click.option('-hp','--hap', is_flag=True, default=None, help='Reads will be grouped according to HP tag in bam')
 @click.option('-st','--strands', is_flag=True, default=None, help='Reads will be grouped by strand in bam')
@@ -26,11 +26,12 @@ def listify(ctx, param, value):
 @click.option('-f','--fmt', is_flag=False, default='html', type=str, help='Format of output file (png, html, svg, pdf)')
 @click.option('-u','--can_prob', is_flag=False, default=0.5, type=float, help='Probability threshold for canonical bases')
 @click.option('-m','--mod_prob', is_flag=False, default=0.5, type=float, help='Probability threshold for modified bases')
-@click.option('-h','--height', is_flag=False, default=None, type=int, help='Height of plot in px')
+@click.option('-h','--height', is_flag=False, default=None, type=int, help='Height of plot in px. This is for fine tuning, the height is automatically calculated.')
 @click.option('-w','--width', is_flag=False, default=None, type=int, help='Width of plot in px')
 
 def plot(bams,region,gtf, bed, bigwig, bedgraph, samples, hap, out, can_prob, mod_prob, height, width, prefix, fmt, strands):
     "This Command will plot single-read base modification data"
+    print(bed)
     chrom = region.strip().split(':')[0]
     start = int(region.strip().split(':')[1].split('-')[0])
     end = int(region.strip().split(':')[1].split('-')[1])
