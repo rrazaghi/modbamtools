@@ -27,22 +27,22 @@ def queue_reads(dict_per_read):
             i -= 1          
     return out_dict
 
-def record_text_plot(record,start,end):
+def record_text_plot(record_start, record_end,start,end):
     """
     plot gene models texts (names)
     """
-    if (record.start > start) & (record.end > end):
-            x = [record.start]
-            textpos = "bottom right"
-    elif (record.start < start) & (record.end < end):
-            x = [record.end]
-            textpos = "bottom left"
-    elif (record.start >= start) & (record.end <= end):
-            x = [(record.start + record.end)/2]
-            textpos = "bottom center"
-    elif (record.start < start) & (record.end > end):
+    if (record_start > start) & (record_end > end):
+            x = [record_start]
+            textpos = "top right"
+    elif (record_start < start) & (record_end < end):
+            x = [record_end]
+            textpos = "top left"
+    elif (record_start >= start) & (record_end <= end):
+            x = [(record_start + record_end)/2]
+            textpos = "top center"
+    elif (record_start < start) & (record_end > end):
             x = [(start + end)/2]
-            textpos = "bottom center"
+            textpos = "top center"
             
     return (x,textpos)
     
@@ -62,7 +62,7 @@ def parse_gtf(gtf_path,chrom,start,end, record_type="", vertical_spacing=3):
             
             records[record.gene_name + " (" + record.gene_type + ")"] = [record.end - record.start,
                               (record.start,record.end),
-                              record_text_plot(record,start,end),record.strand]
+                              record_text_plot(record.start,record.end,start,end),record.strand]
             
     records = queue_reads(records)
     name_traces = []
@@ -99,9 +99,89 @@ def parse_gtf(gtf_path,chrom,start,end, record_type="", vertical_spacing=3):
         
         
     return ylim, name_traces, shapes
-    
+ 
+def merge_exons(intervals):
 
-def parse_bed(bed_path,chrom,start,end):
+        intervals.sort(key=lambda x: x[0])
+
+        merged = []
+        for interval in intervals:
+            # if the list of merged intervals is empty or if the current
+            # interval does not overlap with the previous, simply append it.
+            if not merged or merged[-1][1] < interval[0]:
+                merged.append(interval)
+            else:
+            # otherwise, there is overlap, so we merge the current and previous
+            # intervals.
+                merged[-1][1] = max(merged[-1][1], interval[1])
+
+        return merged
+
+def parse_gtf_exons(gtf_path, chrom, start, end,vertical_spacing=20):
+    per_line_height = 50 #px
+    gtf = pysam.TabixFile(gtf_path, parser = pysam.asGTF())
+    recs = {}
+    for record in gtf.fetch(chrom,start, end):
+        if record.gene_name + " (" + record.gene_type + ")" not in recs.keys():
+            recs[record.gene_name + " (" + record.gene_type + ")"] = {"gene": [],"exons" : []}
+        if record.feature == "gene":
+            recs[record.gene_name + " (" + record.gene_type + ")"]["gene"] = (record.start, record.end, record.strand)
+        if record.feature == "exon":
+            recs[record.gene_name + " (" + record.gene_type + ")"]["exons"].append([record.start, record.end])
+    # print(recs)
+    out = {}
+    for k, v in recs.items():
+        coo = (v['gene'][0], v['gene'][1])
+        length = v['gene'][1] - v['gene'][0]
+        strand = v['gene'][2]
+        exons = merge_exons(v["exons"])
+        out[k] = [length, coo, record_text_plot(coo[0],coo[1],start,end), strand, exons]
+      
+    records = queue_reads(out)
+    name_traces = []
+    shapes = []
+    i = 0
+    for row, record_list in records.items():
+
+        for record in record_list:
+            
+            if record[1][3] == "+":
+                color = "RoyalBlue"
+                fill = "LightSkyBlue"
+            elif record[1][3] == "-":
+                color = "lightseagreen"
+                fill = "mediumaquamarine"
+                
+            name_traces.append(go.Scatter(
+                    x=record[1][2][0],
+                    y=[(i + 4)],
+                    text=[record[0]],
+                    mode="text",
+                    textposition=record[1][2][1],showlegend=False
+                ))
+
+            shapes.append(dict(type="line",
+                    x0=record[1][1][0], y0=i, x1=record[1][1][1], y1=i,
+                    line=dict(color=color, width=2),
+                    fillcolor=fill
+                ))
+            for exon in record[1][4]:
+                shapes.append(dict(type="rect",
+                        x0=exon[0], y0=i + 2, x1=exon[1], y1=(i - 2),
+                        line=dict(color=color, width=2),
+                        fillcolor=fill, opacity=1
+                    ))
+        
+        i -= vertical_spacing
+     
+    ylim = [i,20]
+    height = (abs(row) + 1) * per_line_height
+        
+        
+    return ylim, name_traces, shapes, height
+
+
+def parse_bed_rectangle(bed_path,chrom,start,end):
     shapes = []
     bed = pysam.TabixFile(bed_path)
     records = set()   
@@ -109,28 +189,14 @@ def parse_bed(bed_path,chrom,start,end):
         
         line = record.split("\t")
         
-#         try:
-#             abc_score = float(line[7])
-#         except ValueError:
-#             continue
-            
-#         if float(line[20]) < 0.01:
-#             continue
         coo = line[0:3]
         coo = "\t".join(coo)
         records.add(coo)
         
     for record in records:
         coo = record.split("\t")
-# #         print(coo[4])
-#         if coo[4] == "promoter":
-#             color = "Black"
-#             fill = "Grey"
-# #         elif line[4] == "FALSE":
-#         else:
         color = "Crimson"
         fill = "Salmon"
-#         shapes.append(go.Scatter(x=[coo[1],coo[1],coo[2],coo[2],coo[1]], y=[0,1,1,0,0], fill="toself"))
         shapes.append(dict(type="rect",
                     x0=coo[1], y0=0, x1=coo[2], y1=1,
                     line=dict(color=color, width=2),
@@ -140,7 +206,8 @@ def parse_bed(bed_path,chrom,start,end):
     
      
     ylim = [-1,2]
+    height = 50 #px
         
         
-    return ylim, shapes
+    return ylim, shapes, height
     

@@ -3,7 +3,6 @@ from scipy.signal import savgol_filter
 import plotly.graph_objects as go
 import numpy as np
 import pysam
-# import pyBigWig
 import plotly.graph_objects as go
 import plotly.io as pio
 import collections
@@ -57,15 +56,6 @@ def calc_freq(dict_per_read_mod, start,end):
     freq_smooth["y"] = savgol_filter(freq["y"], 51, 3)
     freq_smooth["x"] = freq["x"]
     return freq, freq_smooth
-
-def calc_rows_h(dicts):
-    num_reads = []
-    for read_dict in dicts:
-        num_reads.append(len(read_dict))
-
-    row_h = list(0.7 * np.array(num_reads)/sum(num_reads))
-
-    return row_h
 
 def queue_reads_plotly(dict_per_read_mod):
     
@@ -212,3 +202,4 @@ def get_reads(bams, chrom, start, end, hap=None, strand=None, samp_names = None,
             dicts.append(reads)
 
     return dicts, titles
+
