@@ -122,6 +122,8 @@ def parse_gtf_exons(gtf_path, chrom, start, end,vertical_spacing=20):
     gtf = pysam.TabixFile(gtf_path, parser = pysam.asGTF())
     recs = {}
     for record in gtf.fetch(chrom,start, end):
+        if record.gene_type == 'misc_RNA':
+            continue
         if record.gene_name + " (" + record.gene_type + ")" not in recs.keys():
             recs[record.gene_name + " (" + record.gene_type + ")"] = {"gene": [],"exons" : []}
         if record.feature == "gene":
@@ -144,7 +146,7 @@ def parse_gtf_exons(gtf_path, chrom, start, end,vertical_spacing=20):
     for row, record_list in records.items():
 
         for record in record_list:
-            
+        
             if record[1][3] == "+":
                 color = "RoyalBlue"
                 fill = "LightSkyBlue"

@@ -8,7 +8,7 @@ class Plotter:
     """
 
     def __init__(self,dicts,samp_names,chrom, start,
-     end, gtfs=None, beds=None, bigwigs=None, bedgraphs=None) -> None:
+     end, gtfs=None, beds=None, bigwigs=None, bedgraphs=None, track_titles=None) -> None:
         self.chrom = chrom
         self.start = start
         self.end = end
@@ -18,16 +18,20 @@ class Plotter:
         self.bigwigs = bigwigs
         self.bedgraphs = bedgraphs
         self.samp_names = samp_names
+        self.track_titles = track_titles
         self.tracks , self.num_tracks = get_tracks(self.chrom, self.start, self.end, 
         self.dicts,self.gtfs,self.beds,
         self.bigwigs,self.bedgraphs)
         self.plot_height , self.row_heights = get_heights(self.tracks)
-        empty_titles = [""] * (self.num_tracks - len(dicts))
+        if self.track_titles:
+            self.titles = self.track_titles + [""] + samp_names
+        if not self.track_titles:
+            self.titles = [""] * (self.num_tracks - len(dicts)) + self.samp_names
 
         # self.tracks_titles = ["Genes","Enhancers","Methylation frequency plots"]
         self.fig = make_subplots(rows=self.num_tracks, cols=1, shared_xaxes=True,
         vertical_spacing=0.04,row_heights=self.row_heights,
-        subplot_titles=empty_titles + samp_names )
+        subplot_titles=self.titles )
     def plot_tracks(self):
         """
         Plot tracks
@@ -54,11 +58,13 @@ class Plotter:
             for bw in self.tracks['bigwig']:
                 self.fig.append_trace(bw[0], row=i, col=1)
                 self.fig.update_yaxes(visible=False, row=i, col=1)
+                self.fig.update_xaxes(visible=False, row=i, col=1)
                 i += 1
         if self.bedgraphs:
             for b in self.tracks['bedgraph']:
                 self.fig.append_trace(b[0], row=i, col=1)
                 self.fig.update_yaxes(visible=False, row=i, col=1)
+                self.fig.update_xaxes(visible=False, row=i, col=1)
                 i += 1
         if self.dicts:
             freq_row = i

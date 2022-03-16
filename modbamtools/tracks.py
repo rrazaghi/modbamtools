@@ -1,5 +1,6 @@
 from modbamtools.utils import *
 from modbamtools.gene_models import *
+import pyBigWig
 
 def parse_bigwig(bigwig_path, chrom, start,end):
     
@@ -12,9 +13,9 @@ def parse_bigwig(bigwig_path, chrom, start,end):
         mode='lines',
         marker=dict(
             size=6,
-            color="goldenrod",
+            color="cadetblue",
         ),
-        name=''
+        name='',showlegend=False
     )
     height = 100 #px
     return trace, height
@@ -51,7 +52,7 @@ def parse_bedgraph(bedgraph_path, chrom, start, end):
             size=6,
             color="goldenrod",
         ),
-        name=''
+        name='',showlegend=False
     )
     height = 100 #px
 
@@ -142,7 +143,6 @@ def parse_bed(bed_path,chrom,start,end):
      
     ylim = [-1,2]
         
-        
     return ylim, shapes
 
 def make_modbam_trace(dicts,start, end):
@@ -166,6 +166,13 @@ def make_modbam_trace(dicts,start, end):
                 x = list(read[1][2].keys()),
                 y = np.full(len(read[1][2].keys()), line),
                 connectgaps=True,
+                # marker = {'color': list(map(SetColor,list(read[1][2].values()))),
+                #             'size': 6,
+                #             'symbol': "square",
+                #             'line':{
+                # 'color':colors[i],
+                # 'width':0.2}
+                #             },
                 marker = {'color': list(map(SetColor,list(read[1][2].values()))),
                             'size': 6,
                             'symbol': "square"
@@ -202,6 +209,7 @@ def get_tracks(chrom, start, end, dicts=None,gtfs=None,beds=None,bigwigs=None,be
         tracks['bedgraph'] = []
         for bedgraph in bedgraphs:
             b = parse_bedgraph(bedgraph, chrom, start,end)
+            tracks['bedgraph'].append(b)
             num_tracks += 1
     if dicts:
         tracks['modbase_freq'] = []

@@ -7,6 +7,8 @@ import plotly.graph_objects as go
 import plotly.io as pio
 import collections
 import pandas as pd
+import io
+from PyPDF2 import PdfFileMerger
 from modbampy import *
 import plotly.express as px
 from plotly.subplots import make_subplots
@@ -87,13 +89,22 @@ def queue_reads_plotly(dict_per_read_mod):
 
     return plot_dict
 
+def pdf_report(figs, output):
+    merger = PdfFileMerger()
+    for fig in figs:
+        pdf_file = io.BytesIO()
+        pio.write_image(fig, pdf_file, 'pdf')
+        pdf_file.seek(0)
+        merger.append(pdf_file)
+        
+    merger.write(output)
 def SetColor(x):
     if(x == 0):
         return "blue"
-#         return "#007da3"
+        # return 'white'
     if(x == 1):
         return "red"
-#         return "#DD4765"
+        # return 'black'
 
 def process_bam(bam, chrom, start, end,tag_name=None, tag_value =None,min_prob=0.5, max_prob=0.5):
 #     tag_name = "HP"
