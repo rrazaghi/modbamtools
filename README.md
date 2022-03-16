@@ -60,9 +60,9 @@ Options:
   -w, --width INTEGER       width of plot in px
   --help                    Show this message and exit.
 
-example: modbamtools plot -r chr22:29188081-29222181 -hp --gtf gencode.v38.annotation.sorted.gtf.gz --out ./plots modbam.bam -h 1000
+example:  modbamtools plot -r $region --gtf $gtf -hp -b $bed -bw $bw1 -bw $bw2 --samples $names --track-titles $tracks -w 1500 --out $out --prefix $prefix --fmt png $bam
 ```
-![example plot](./tests/test.html.png)
+![example plot](./tests/test.png)
 
 
 
