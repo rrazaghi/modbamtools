@@ -37,13 +37,13 @@ Usage: modbamtools plot [OPTIONS] BAMS...
 
 Options:
   -r, --region TEXT         Region of interest. example: chr21:1-1000
-  -br, --batch PATH         makes html report for all regions in the bed file
+  -br, --batch PATH         makes html/pdf report for all regions in the bed file
   -g, --gtf PATH            makes gene tracks from sorted and tabix gtf files
   -b, --bed PATH            makes tracks from sorted and tabix bed files. This
                             will plot each interval as a rectangle (similar to
                             gtf)
   -bw, --bigwig PATH        makes a track from bigwig files
-  -bd, --bedgraph PATH      makes a track from bigwig files
+  -bd, --bedgraph PATH      makes a track from bedgraph files
   -s, --samples TEXT        sample names per each bam input
   -tr, --track-titles TEXT  titles of tracks provided in order of gtf files,
                             bed files, bigwig files, bedgraph files
