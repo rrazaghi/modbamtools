@@ -82,35 +82,3 @@ class Plotter:
         self.fig.update_xaxes(visible=True, row=i-1, col=1)
         self.fig.update_xaxes(range=[self.start, self.end],tickformat=',d',title_text="Coordinate")   
         self.fig.update_layout(height=self.plot_height)
-    # def plot(self):
-    #     """
-    #     Plot reads and sample frequencies
-    #     """
-    #     for i, sample_dict in enumerate(self.dicts):
-    #         #### Plot Frequencies ####
-    #         freq = plot_frequencies(sample_dict, self.start, self.end, color=self.colors[i])
-    #         self.fig.add_traces(freq, rows=[3,3], cols=[1,1])
-    #         # self.fig.update_yaxes(visible=False, row= 2, col=1)
-    #         self.fig.update_xaxes(visible=False, row=i + 3, col=1)
-    
-    #         #### Plot Reads ####
-    #         sample_dict = queue_reads_plotly(sample_dict)
-    #         for line,reads in sample_dict.items():
-    #             for read in reads:
-    #                 self.fig.add_trace(go.Scattergl(mode='lines+markers', line=dict(color=self.colors[i]),
-    #                 x = list(read[1][2].keys()),
-    #                 y = np.full(len(read[1][2].keys()), line),
-    #                 connectgaps=True,
-    #                 marker = {'color': list(map(SetColor,list(read[1][2].values()))),
-    #         #                      'colorscale': colorscale,
-    #                             'size': 6,
-    #                             'symbol': "square"
-    #                             },
-    #                 name= read[0]  ,showlegend=False
-    #                 ), row=i+4, col=1) 
-                    
-    #         self.fig.update_xaxes(visible=False, row=i + 4, col=1)
-    #         self.fig.update_yaxes(visible=False, row=i + 4, col=1)
-
-    #     self.fig.update_xaxes(visible=True, row=i + 4, col=1)
-    #     self.fig.update_xaxes(range=[self.start, self.end],tickformat=',d',title_text="Coordinate")

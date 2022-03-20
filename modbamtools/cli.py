@@ -1,5 +1,8 @@
 import click
 from modbamtools.modbamviz import *
+import io
+from PIL import Image
+from PyPDF2 import PdfFileMerger
 
 @click.group()
 @click.version_option()
@@ -14,11 +17,11 @@ def listify(ctx, param, value):
 @cli.command(name="plot")
 @click.argument("bams",nargs=-1,type=click.Path(exists=True),required=True)
 @click.option('-r','--region', required=False, type=str, help='Region of interest. example: chr21:1-1000')
-@click.option('-br','--batch', is_flag=False,default=None,required=False, type=click.Path(exists=True), help='makes html report for all regions in the bed file')
+@click.option('-br','--batch', is_flag=False,default=None,required=False, type=click.Path(exists=True), help='makes html/pdf report for all regions in the bed file')
 @click.option('-g','--gtf', multiple=True,is_flag=False,default=None,required=False, type=click.Path(exists=True), help='makes gene tracks from sorted and tabix gtf files')
 @click.option('-b','--bed', multiple=True,is_flag=False,default=None,required=False, type=click.Path(exists=True), help='makes tracks from sorted and tabix bed files. This will plot each interval as a rectangle (similar to gtf)')
 @click.option('-bw','--bigwig',multiple=True,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='makes a track from bigwig files')
-@click.option('-bd','--bedgraph',multiple=True,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='makes a track from bigwig files')
+@click.option('-bd','--bedgraph',multiple=True,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='makes a track from bedgraph files')
 @click.option('-s','--samples', is_flag=False, default=None, type=str, help='sample names per each bam input')
 @click.option('-tr','--track-titles', is_flag=False, default=None, type=str, help='titles of tracks provided in order of gtf files, bed files, bigwig files, bedgraph files')
 @click.option('-hp','--hap', is_flag=True, default=None, help='reads will be grouped according to HP tag in bam (comma separated)')
@@ -34,11 +37,9 @@ def listify(ctx, param, value):
 def plot(bams,region,gtf, bed, bigwig, bedgraph, samples, hap, out, can_prob, mod_prob, height, width, prefix, fmt, strands, batch, track_titles):
     "This Command will plot single-read base modification data"
     if batch:
-        html_start = '''
-        @media print {
-            .pagebreak { page-break-before: always; } /* page-break-after works, as well */
-        }
-        '''
+        if (fmt != 'html') & (fmt != 'pdf'):
+            click.echo('only html and pdf formats for reports are currently supported!')
+            raise click.Abort()
         html_break='''
         <div style = "display:block; clear:both; page-break-after:always;"></div>
         '''
@@ -48,35 +49,46 @@ def plot(bams,region,gtf, bed, bigwig, bedgraph, samples, hap, out, can_prob, mo
             samples = [s for s in samples.strip().split(',')]
         if track_titles:
             track_titles =  [t for t in track_titles.strip().split(',')]
+        if fmt == 'pdf':
+            merger = PdfFileMerger()
+
         with open(batch,'r') as b:
-            with open(out_path, 'w') as o:
-                # if fmt =='html':
-                #     o.write(html_break)
-                for l in b:
-                    if l[0] == '#':
-                        continue
-                    click.echo('processing '+l)
-                    line = l.strip().split("\t")
-                    chrom = line[0]
-                    start = int(line[1])
-                    end = int(line[2])
-                    dicts, titles = get_reads(bams, chrom, start, end, hap=hap, strand=strands, samp_names= samples, min_prob=can_prob, max_prob=mod_prob)
-                    plot = Plotter(dicts=dicts,samp_names=titles,chrom=chrom,start=start, end=end,
-                    gtfs=gtf, beds=bed, bigwigs=bigwig, bedgraphs=bedgraph, track_titles=track_titles)
-                    plot.plot_tracks()
-                    if height:
-                        plot.fig.update_layout(height=height)
-                    if width:
-                        plot.fig.update_layout(width=width)
-                    if fmt == 'html':
-                        o.write(plot.fig.to_html(full_html=False, include_plotlyjs='cdn'))
+            for l in b:
+                if l[0] == '#':
+                    continue
+                click.echo('processing '+l)
+                line = l.strip().split("\t")
+                chrom = line[0]
+                start = int(line[1])
+                end = int(line[2])
+                dicts, titles = get_reads(bams, chrom, start, end, hap=hap, strand=strands, samp_names= samples, min_prob=can_prob, max_prob=mod_prob)
+                plot = Plotter(dicts=dicts,samp_names=titles,chrom=chrom,start=start, end=end,
+                gtfs=gtf, beds=bed, bigwigs=bigwig, bedgraphs=bedgraph, track_titles=track_titles)
+                plot.plot_tracks()
+                if height:
+                    plot.fig.update_layout(height=height)
+                if width:
+                    plot.fig.update_layout(width=width)
+                if fmt == 'html':
+                    plot.fig.update_layout(title=chrom + ':' + line[1] + '-' + line[2])
+                    with open(out_path, 'a') as o:
+                        o.write(plot.fig.to_html(full_html=True))
                         o.write(html_break)
-                    if fmt != 'html':
-                        figs.append(plot.fig)
-        if fmt != 'html':
-            click.echo('only html format for reports are supported currently')
-            raise click.Abort()
-            # pdf_report(figs, out_path)
+                # if fmt == 'png':
+                #     plot.fig.update_layout(title=chrom + ':' + line[1] + '-' + line[2])
+                #     img_bytes = plot.fig.to_image(format="png")
+                #     im = Image.open(io.BytesIO(img_bytes)).convert('RGB')
+                #     figs.append(im)
+                if fmt == 'pdf':
+                    plot.fig.update_layout(title=chrom + ':' + line[1] + '-' + line[2])
+                    plot.fig.update_layout(width=1200)
+                    img_bytes = plot.fig.to_image(format="pdf")
+                    merger.append(io.BytesIO(img_bytes))
+
+        # if fmt == 'png':
+        #     figs.pop(0).save(out_path,'PDF', save_all=True, append_images=figs, resolution=100.0)
+        if fmt == 'pdf':
+            merger.write(out_path)
 
     elif region:
         chrom = region.strip().split(':')[0]
