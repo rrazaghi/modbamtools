@@ -143,6 +143,7 @@ def parse_gtf_exons(gtf_path, chrom, start, end,vertical_spacing=20):
     name_traces = []
     shapes = []
     i = 0
+    row = 0
     for row, record_list in records.items():
 
         for record in record_list:

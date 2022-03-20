@@ -60,9 +60,10 @@ Options:
   -w, --width INTEGER       width of plot in px
   --help                    Show this message and exit.
 
-example:  modbamtools plot -r $region --gtf $gtf -hp -b $bed -bw $bw1 -bw $bw2 --samples $names --track-titles $tracks -w 1500 --out $out --prefix $prefix --fmt png $bam
+example:   modbamtools plot -br $regions --gtf $gtf --out $out -hp -b $bed -bw $bw1 -bw $bw2 --prefix $prefix --fmt html --samples $names --track-titles $tracks $bam
+
 ```
-![example plot](./tests/test.png)
+![example plot](./tests/modbamtools.gif)
 
 
 
