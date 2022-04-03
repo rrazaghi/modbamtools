@@ -1,7 +1,8 @@
 from setuptools import setup, find_packages
 import os
 import io
-VERSION = "0.2.2"
+
+VERSION = "0.3.0"
 
 
 def get_long_description():
@@ -31,10 +32,21 @@ setup(
         [console_scripts]
         modbamtools=modbamtools.cli:cli
     """,
-    install_requires=["click==8.0.4", "pysam==0.18.0","scipy==1.5.0","pandas==1.1.1","numpy==1.19.2",
-    "plotly==5.5.0", "modbampy==0.5.0", "kaleido==0.2.1", "pyBigWig==0.3.18","PyPDF2","pillow"],
-    extras_require={
-        "test": ["pytest"]
-    },
+    install_requires=[
+        "click==8.0.4",
+        "pysam==0.18.0",
+        "scipy==1.5.0",
+        "pandas==1.1.1",
+        "numpy==1.19.2",
+        "plotly==5.5.0",
+        "modbampy==0.5.0",
+        "kaleido==0.2.1",
+        "pyBigWig==0.3.18",
+        "PyPDF2",
+        "pillow",
+        "hdbscan",
+        "tqdm",
+    ],
+    extras_require={"test": ["pytest"]},
     python_requires=">=3.6, <=3.8.12",
 )

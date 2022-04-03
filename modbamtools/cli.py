@@ -1,11 +1,13 @@
 import click
 from modbamtools.modbamviz import *
 from modbamtools.calcregions import *
+from modbamtools.clustering import *
 import io
 from PIL import Image
 from PyPDF2 import PdfFileMerger
 from itertools import repeat
 from multiprocessing import cpu_count, get_context, Pool
+import tqdm
 
 
 @click.group()
@@ -310,7 +312,7 @@ def plot(
     default=None,
     required=False,
     type=click.Path(exists=True),
-    help="bed file of regions to cluster",
+    help="bed file of regions",
 )
 @click.option(
     "-t", "--threads", is_flag=False, default=1, type=int, help="number of processes"
@@ -365,3 +367,46 @@ def calcMeth(bam, bed, min_calls, min_cov, threads, hap, out):
     with open(out, "w") as o:
         for rec in results:
             print("\t".join(rec), end="\n", file=o)
+
+
+@cli.command(name="cluster")
+@click.argument("bam", nargs=1, type=click.Path(exists=True), required=True)
+@click.option(
+    "-b",
+    "--bed",
+    is_flag=False,
+    default=None,
+    required=False,
+    type=click.Path(exists=True),
+    help="bed file of regions to cluster",
+)
+@click.option(
+    "-t", "--threads", is_flag=False, default=1, type=int, help="number of processes"
+)
+@click.option(
+    "-o", "--out", required=True, type=click.Path(), help="output path",
+)
+def cluster(bam, bed, threads, out):
+    "Calculate clustering statistics for regions in a bed file"
+
+    data = []
+    with open(bed, "r") as f:
+        for line in f:
+
+            bed_line = line.strip().split("\t")
+            if (bed_line[0] == "chr") | (line[0] == "#"):
+                continue
+            data.append(bed_line)
+
+    cluster_region_y = partial(cluster_region, bam=bam)
+    #     results = p.imap(cluster_region_y, data)
+    with Pool(threads) as p:
+        results = list(tqdm.tqdm(p.imap(cluster_region_y, data), total=len(data)))
+        #     results = p.starmap(cluster_region, zip(repeat(bam), data))
+        p.close()
+        p.join()
+
+    with open(out, "w") as o:
+        for rec in results:
+            print("\t".join(rec), end="\n", file=o)
+
