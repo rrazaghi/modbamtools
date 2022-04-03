@@ -1,8 +1,12 @@
 import click
 from modbamtools.modbamviz import *
+from modbamtools.calcregions import *
 import io
 from PIL import Image
 from PyPDF2 import PdfFileMerger
+from itertools import repeat
+from multiprocessing import cpu_count, get_context, Pool
+
 
 @click.group()
 @click.version_option()
@@ -10,68 +14,223 @@ def cli():
     "A set of tools to manipulate and visualize data from base modification bam files"
     pass
 
+
 def listify(ctx, param, value):
     if type(value) == str:
         return [value]
 
-@cli.command(name="plot")
-@click.argument("bams",nargs=-1,type=click.Path(exists=True),required=True)
-@click.option('-r','--region', required=False, type=str, help='Region of interest. example: chr21:1-1000')
-@click.option('-br','--batch', is_flag=False,default=None,required=False, type=click.Path(exists=True), help='makes html/pdf report for all regions in the bed file')
-@click.option('-g','--gtf', multiple=True,is_flag=False,default=None,required=False, type=click.Path(exists=True), help='makes gene tracks from sorted and tabix gtf files')
-@click.option('-b','--bed', multiple=True,is_flag=False,default=None,required=False, type=click.Path(exists=True), help='makes tracks from sorted and tabix bed files. This will plot each interval as a rectangle (similar to gtf)')
-@click.option('-bw','--bigwig',multiple=True,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='makes a track from bigwig files')
-@click.option('-bd','--bedgraph',multiple=True,is_flag=False,default=None, required=False, type=click.Path(exists=True), help='makes a track from bedgraph files')
-@click.option('-s','--samples', is_flag=False, default=None, type=str, help='sample names per each bam input')
-@click.option('-tr','--track-titles', is_flag=False, default=None, type=str, help='titles of tracks provided in order of gtf files, bed files, bigwig files, bedgraph files')
-@click.option('-hp','--hap', is_flag=True, default=None, help='reads will be grouped according to HP tag in bam (comma separated)')
-@click.option('-st','--strands', is_flag=True, default=None, help='reads will be grouped by strand in bam')
-@click.option('-o','--out', required=True, type=click.Path(exists=True), help='output path for html plot')
-@click.option('-p','--prefix', required=False, type=str,default= "modbamviz", help='File name for output')
-@click.option('-f','--fmt', is_flag=False, default='html', type=str, help='format of output file (png, html, svg, pdf)')
-@click.option('-u','--can_prob', is_flag=False, default=0.5, type=float, help='probability threshold for canonical bases')
-@click.option('-m','--mod_prob', is_flag=False, default=0.5, type=float, help='probability threshold for modified bases')
-@click.option('-h','--height', is_flag=False, default=None, type=int, help='height of plot in px. This is for fine tuning, the height is automatically calculated.')
-@click.option('-w','--width', is_flag=False, default=None, type=int, help='width of plot in px')
 
-def plot(bams,region,gtf, bed, bigwig, bedgraph, samples, hap, out, can_prob, mod_prob, height, width, prefix, fmt, strands, batch, track_titles):
-    "This Command will plot single-read base modification data"
+@cli.command(name="plot")
+@click.argument("bams", nargs=-1, type=click.Path(exists=True), required=True)
+@click.option(
+    "-r",
+    "--region",
+    required=False,
+    type=str,
+    help="Region of interest. example: chr21:1-1000",
+)
+@click.option(
+    "-br",
+    "--batch",
+    is_flag=False,
+    default=None,
+    required=False,
+    type=click.Path(exists=True),
+    help="makes html/pdf report for all regions in the bed file",
+)
+@click.option(
+    "-g",
+    "--gtf",
+    multiple=True,
+    is_flag=False,
+    default=None,
+    required=False,
+    type=click.Path(exists=True),
+    help="makes gene tracks from sorted and tabix gtf files",
+)
+@click.option(
+    "-b",
+    "--bed",
+    multiple=True,
+    is_flag=False,
+    default=None,
+    required=False,
+    type=click.Path(exists=True),
+    help="makes tracks from sorted and tabix bed files. This will plot each interval as a rectangle (similar to gtf)",
+)
+@click.option(
+    "-bw",
+    "--bigwig",
+    multiple=True,
+    is_flag=False,
+    default=None,
+    required=False,
+    type=click.Path(exists=True),
+    help="makes a track from bigwig files",
+)
+@click.option(
+    "-bd",
+    "--bedgraph",
+    multiple=True,
+    is_flag=False,
+    default=None,
+    required=False,
+    type=click.Path(exists=True),
+    help="makes a track from bedgraph files",
+)
+@click.option(
+    "-s",
+    "--samples",
+    is_flag=False,
+    default=None,
+    type=str,
+    help="sample names per each bam input",
+)
+@click.option(
+    "-tr",
+    "--track-titles",
+    is_flag=False,
+    default=None,
+    type=str,
+    help="titles of tracks provided in order of gtf files, bed files, bigwig files, bedgraph files",
+)
+@click.option(
+    "-hp",
+    "--hap",
+    is_flag=True,
+    default=None,
+    help="reads will be grouped according to HP tag in bam (comma separated)",
+)
+@click.option(
+    "-st",
+    "--strands",
+    is_flag=True,
+    default=None,
+    help="reads will be grouped by strand in bam",
+)
+@click.option(
+    "-o", "--out", required=True, type=click.Path(exists=True), help="output path",
+)
+@click.option(
+    "-p",
+    "--prefix",
+    required=False,
+    type=str,
+    default="modbamviz",
+    help="File name for output",
+)
+@click.option(
+    "-f",
+    "--fmt",
+    is_flag=False,
+    default="html",
+    type=str,
+    help="format of output file (png, html, svg, pdf)",
+)
+@click.option(
+    "-u",
+    "--can_prob",
+    is_flag=False,
+    default=0.5,
+    type=float,
+    help="probability threshold for canonical bases",
+)
+@click.option(
+    "-m",
+    "--mod_prob",
+    is_flag=False,
+    default=0.5,
+    type=float,
+    help="probability threshold for modified bases",
+)
+@click.option(
+    "-h",
+    "--height",
+    is_flag=False,
+    default=None,
+    type=int,
+    help="height of plot in px. This is for fine tuning, the height is automatically calculated.",
+)
+@click.option(
+    "-w", "--width", is_flag=False, default=None, type=int, help="width of plot in px"
+)
+def plot(
+    bams,
+    region,
+    gtf,
+    bed,
+    bigwig,
+    bedgraph,
+    samples,
+    hap,
+    out,
+    can_prob,
+    mod_prob,
+    height,
+    width,
+    prefix,
+    fmt,
+    strands,
+    batch,
+    track_titles,
+):
+    "Plot single-read base modification data"
     if batch:
-        if (fmt != 'html') & (fmt != 'pdf'):
-            click.echo('only html and pdf formats for reports are currently supported!')
+        if (fmt != "html") & (fmt != "pdf"):
+            click.echo("only html and pdf formats for reports are currently supported!")
             raise click.Abort()
-        html_break='''
+        html_break = """
         <div style = "display:block; clear:both; page-break-after:always;"></div>
-        '''
+        """
         out_path = out + "/" + prefix + "." + fmt
         figs = []
         if samples:
-            samples = [s for s in samples.strip().split(',')]
+            samples = [s for s in samples.strip().split(",")]
         if track_titles:
-            track_titles =  [t for t in track_titles.strip().split(',')]
-        if fmt == 'pdf':
+            track_titles = [t for t in track_titles.strip().split(",")]
+        if fmt == "pdf":
             merger = PdfFileMerger()
 
-        with open(batch,'r') as b:
+        with open(batch, "r") as b:
             for l in b:
-                if l[0] == '#':
+                if l[0] == "#":
                     continue
-                click.echo('processing '+l)
+                click.echo("processing " + l)
                 line = l.strip().split("\t")
                 chrom = line[0]
                 start = int(line[1])
                 end = int(line[2])
-                dicts, titles = get_reads(bams, chrom, start, end, hap=hap, strand=strands, samp_names= samples, min_prob=can_prob, max_prob=mod_prob)
-                plot = Plotter(dicts=dicts,samp_names=titles,chrom=chrom,start=start, end=end,
-                gtfs=gtf, beds=bed, bigwigs=bigwig, bedgraphs=bedgraph, track_titles=track_titles)
+                dicts, titles = get_reads(
+                    bams,
+                    chrom,
+                    start,
+                    end,
+                    hap=hap,
+                    strand=strands,
+                    samp_names=samples,
+                    min_prob=can_prob,
+                    max_prob=mod_prob,
+                )
+                plot = Plotter(
+                    dicts=dicts,
+                    samp_names=titles,
+                    chrom=chrom,
+                    start=start,
+                    end=end,
+                    gtfs=gtf,
+                    beds=bed,
+                    bigwigs=bigwig,
+                    bedgraphs=bedgraph,
+                    track_titles=track_titles,
+                )
                 plot.plot_tracks()
                 if height:
                     plot.fig.update_layout(height=height)
                 if width:
                     plot.fig.update_layout(width=width)
-                if fmt == 'html':
-                    plot.fig.update_layout(title=chrom + ':' + line[1] + '-' + line[2])
-                    with open(out_path, 'a') as o:
+                if fmt == "html":
+                    plot.fig.update_layout(title=chrom + ":" + line[1] + "-" + line[2])
+                    with open(out_path, "a") as o:
                         o.write(plot.fig.to_html(full_html=True))
                         o.write(html_break)
                 # if fmt == 'png':
@@ -79,29 +238,49 @@ def plot(bams,region,gtf, bed, bigwig, bedgraph, samples, hap, out, can_prob, mo
                 #     img_bytes = plot.fig.to_image(format="png")
                 #     im = Image.open(io.BytesIO(img_bytes)).convert('RGB')
                 #     figs.append(im)
-                if fmt == 'pdf':
-                    plot.fig.update_layout(title=chrom + ':' + line[1] + '-' + line[2])
+                if fmt == "pdf":
+                    plot.fig.update_layout(title=chrom + ":" + line[1] + "-" + line[2])
                     plot.fig.update_layout(width=1200)
                     img_bytes = plot.fig.to_image(format="pdf")
                     merger.append(io.BytesIO(img_bytes))
 
         # if fmt == 'png':
         #     figs.pop(0).save(out_path,'PDF', save_all=True, append_images=figs, resolution=100.0)
-        if fmt == 'pdf':
+        if fmt == "pdf":
             merger.write(out_path)
 
     elif region:
-        chrom = region.strip().split(':')[0]
-        start = int(region.strip().split(':')[1].split('-')[0])
-        end = int(region.strip().split(':')[1].split('-')[1])
+        chrom = region.strip().split(":")[0]
+        start = int(region.strip().split(":")[1].split("-")[0])
+        end = int(region.strip().split(":")[1].split("-")[1])
         if samples:
-            samples = [s for s in samples.strip().split(',')]
+            samples = [s for s in samples.strip().split(",")]
         if track_titles:
-            track_titles =  [t for t in track_titles.strip().split(',')]
-        dicts, titles = get_reads(bams, chrom, start, end, hap=hap, strand=strands, samp_names= samples, min_prob=can_prob, max_prob=mod_prob)
+            track_titles = [t for t in track_titles.strip().split(",")]
+        dicts, titles = get_reads(
+            bams,
+            chrom,
+            start,
+            end,
+            hap=hap,
+            strand=strands,
+            samp_names=samples,
+            min_prob=can_prob,
+            max_prob=mod_prob,
+        )
 
-        fig = Plotter(dicts=dicts,samp_names=titles,chrom=chrom,start=start, end=end,
-        gtfs=gtf, beds=bed, bigwigs=bigwig, bedgraphs=bedgraph,track_titles=track_titles)
+        fig = Plotter(
+            dicts=dicts,
+            samp_names=titles,
+            chrom=chrom,
+            start=start,
+            end=end,
+            gtfs=gtf,
+            beds=bed,
+            bigwigs=bigwig,
+            bedgraphs=bedgraph,
+            track_titles=track_titles,
+        )
         fig.plot_tracks()
         if height:
             fig.fig.update_layout(height=height)
@@ -115,7 +294,74 @@ def plot(bams,region,gtf, bed, bigwig, bedgraph, samples, hap, out, can_prob, mo
         else:
             fig.fig.write_image(out_path)
     else:
-        click.echo('Please choose either a region (--region) or bed file of regions (--batch) to process')
+        click.echo(
+            "Please choose either a region (--region) or bed file of regions (--batch) to process"
+        )
 
-    click.echo('Successfully processed modified bases!')
+    click.echo("Successfully processed modified bases!")
 
+
+@cli.command(name="calcMeth")
+@click.argument("bam", nargs=1, type=click.Path(exists=True), required=True)
+@click.option(
+    "-b",
+    "--bed",
+    is_flag=False,
+    default=None,
+    required=False,
+    type=click.Path(exists=True),
+    help="bed file of regions to cluster",
+)
+@click.option(
+    "-t", "--threads", is_flag=False, default=1, type=int, help="number of processes"
+)
+@click.option(
+    "-a",
+    "--min_calls",
+    is_flag=False,
+    default=5,
+    type=int,
+    help="filter out reads that have fewer number of modified base calls in region of interest",
+)
+@click.option(
+    "-s",
+    "--min_cov",
+    is_flag=False,
+    default=80,
+    type=float,
+    help="minimum percent coverage of a single read over region of interest",
+)
+@click.option(
+    "-hp",
+    "--hap",
+    is_flag=True,
+    default=None,
+    help="add stats for each haplotype separately to the output",
+)
+@click.option(
+    "-o", "--out", required=True, type=click.Path(), help="output path",
+)
+def calcMeth(bam, bed, min_calls, min_cov, threads, hap, out):
+    "Calculate methylation statistics for regions in a bed file"
+    data = []
+    with open(bed, "r") as f:
+        for line in f:
+
+            bed_line = line.strip().split("\t")
+            if (bed_line[0] == "chr") | (line[0] == "#"):
+                continue
+            data.append(bed_line)
+
+    results = []
+    with Pool(threads) as p:
+        s = p.starmap(
+            get_region_stats_hap_horizontal,
+            zip(repeat(bam), repeat(min_calls), repeat(min_cov), repeat(hap), data),
+        )
+        results.extend(s)
+        p.close()
+        p.join()
+
+    with open(out, "w") as o:
+        for rec in results:
+            print("\t".join(rec), end="\n", file=o)
