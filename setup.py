@@ -46,6 +46,7 @@ setup(
         "pillow",
         "hdbscan",
         "tqdm",
+        "Cython",
     ],
     extras_require={"test": ["pytest"]},
     python_requires=">=3.6, <=3.8.12",
