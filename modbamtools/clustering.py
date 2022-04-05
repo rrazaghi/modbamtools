@@ -45,3 +45,30 @@ def cluster_region(bed_line, bam):
     else:
         bed_line.extend([str(0), str(accepted_reads)])
     return bed_line
+
+
+def cluster2dicts(bams, chrom, start, end, min_cov=0.9):
+    dict_per_read_mod = {}
+    for bam in bams:
+        dict_mod = process_bam(bam, chrom, start, end)
+        dict_per_read_mod = {**dict_per_read_mod, **dict_mod}
+    reads_dict = {}
+    for rname, arr in dict_per_read_mod.items():
+        if arr[0] / (end - start) > min_cov:
+            reads_dict[rname] = arr[2]
+
+    df = pd.DataFrame.from_dict(reads_dict, orient="index")
+    df = df[df.columns[df.columns.isin(range(start, end))]]
+    df = df.reindex(sorted(df.columns), axis=1)
+    df.fillna(0, inplace=True)
+    clusterer = hdbscan.HDBSCAN(metric="hamming", min_cluster_size=10, min_samples=5)
+    clusterer.fit(df.to_numpy())
+    cl_labels = sorted(list(clusterer.labels_))
+    out = {}
+    for read_id, cluster in zip(list(df.index), clusterer.labels_):
+        if cluster not in out.keys():
+            out[cluster] = {}
+        out[cluster][read_id] = dict_per_read_mod[read_id]
+    names = ["Cluster " + str(cl) for cl in out.keys()]
+    dicts = [v for v in out.values()]
+    return dicts, names

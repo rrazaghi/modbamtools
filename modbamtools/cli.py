@@ -156,6 +156,14 @@ def listify(ctx, param, value):
 @click.option(
     "-w", "--width", is_flag=False, default=None, type=int, help="width of plot in px"
 )
+@click.option(
+    "-c",
+    "--cluster",
+    is_flag=True,
+    default=None,
+    type=int,
+    help="cluster the reads based on modification state",
+)
 def plot(
     bams,
     region,
@@ -175,6 +183,7 @@ def plot(
     strands,
     batch,
     track_titles,
+    cluster,
 ):
     "Plot single-read base modification data"
     if batch:
@@ -259,17 +268,20 @@ def plot(
             samples = [s for s in samples.strip().split(",")]
         if track_titles:
             track_titles = [t for t in track_titles.strip().split(",")]
-        dicts, titles = get_reads(
-            bams,
-            chrom,
-            start,
-            end,
-            hap=hap,
-            strand=strands,
-            samp_names=samples,
-            min_prob=can_prob,
-            max_prob=mod_prob,
-        )
+        if cluster:
+            dicts, titles = cluster2dicts(bams, chrom, start, end)
+        if not cluster:
+            dicts, titles = get_reads(
+                bams,
+                chrom,
+                start,
+                end,
+                hap=hap,
+                strand=strands,
+                samp_names=samples,
+                min_prob=can_prob,
+                max_prob=mod_prob,
+            )
 
         fig = Plotter(
             dicts=dicts,
