@@ -5,19 +5,15 @@ modbamtools is a set of tools to manipulate and visualize DNA/RNA base modificat
 ## Generate modified base tags for your data
 modbamtools is technology agnostic. However, tools tailored for analysis of modified bases using long-read technology are currently adapting to using MM/ML tags at a much higher rate. below are the list of tools that can generate these tags to be used with modbamtools:
 
-Oxford Nanopore Technology (ONT)  
-Bonito 
-Guppy  
-Nanopolish  
-Megalodon  
-Remora
+**Oxford Nanopore Technology (ONT)**  
+[Bonito](https://github.com/nanoporetech/bonito)  
+[Guppy]  
+[Nanopolish]  
+[Megalodon]  
+[Remora]
 
-Pacific Biosciences (Pacbio)  
-[Primrose](https://github.com/PacificBiosciences/primrose)
-
-
-## Commands
-
+**Pacific Biosciences (Pacbio)**  
+[Primrose](https://github.com
 * `mkdocs new [dir-name]` - Create a new project.
 * `mkdocs serve` - Start the live-reloading docs server.
 * `mkdocs build` - Build the documentation site.
