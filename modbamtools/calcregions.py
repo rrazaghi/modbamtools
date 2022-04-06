@@ -87,4 +87,3 @@ def get_region_stats_hap_horizontal(bam, min_calls, min_cov, hp, bed_line):
 
     return bed_line
 
-

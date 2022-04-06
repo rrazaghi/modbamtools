@@ -10,7 +10,7 @@ from multiprocessing import cpu_count, get_context, Pool
 import tqdm
 
 
-@click.group()
+@click.group(context_settings={"show_default": True})
 @click.version_option()
 def cli():
     "A set of tools to manipulate and visualize data from base modification bam files"
@@ -211,17 +211,20 @@ def plot(
                 chrom = line[0]
                 start = int(line[1])
                 end = int(line[2])
-                dicts, titles = get_reads(
-                    bams,
-                    chrom,
-                    start,
-                    end,
-                    hap=hap,
-                    strand=strands,
-                    samp_names=samples,
-                    min_prob=can_prob,
-                    max_prob=mod_prob,
-                )
+                if cluster:
+                    dicts, titles = cluster2dicts(bams, chrom, start, end)
+                if not cluster:
+                    dicts, titles = get_reads(
+                        bams,
+                        chrom,
+                        start,
+                        end,
+                        hap=hap,
+                        strand=strands,
+                        samp_names=samples,
+                        min_prob=can_prob,
+                        max_prob=mod_prob,
+                    )
                 plot = Plotter(
                     dicts=dicts,
                     samp_names=titles,
