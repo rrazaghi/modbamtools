@@ -1,6 +1,10 @@
 site_name: modbamtools
 theme:
+  features:
+    - content.code.annotate
   name: null
   custom_dir: 'cinder'
 nav:
   - Home: index.md
+  - Commands: commands.md
+  - Tutorial: tutorial.md
