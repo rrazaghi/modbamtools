@@ -4,6 +4,7 @@ theme:
     - content.code.annotate
   name: null
   custom_dir: 'cinder'
+  colorscheme: Material
 nav:
   - Home: index.md
   - Commands: commands.md

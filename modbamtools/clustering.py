@@ -1,6 +1,7 @@
 from functools import partial
 from modbamtools.utils import *
 import hdbscan
+import collections
 
 
 def cluster_region(bed_line, bam):
@@ -66,10 +67,13 @@ def cluster2dicts(bams, chrom, start, end, min_cov=0.9):
     cl_labels = sorted(list(clusterer.labels_))
     out = {}
     for read_id, cluster in zip(list(df.index), clusterer.labels_):
-        cluster += 1
-        if cluster not in out.keys():
-            out[cluster] = {}
-        out[cluster][read_id] = dict_per_read_mod[read_id]
+        new_id = cluster + 1
+        if new_id == 0:
+            continue
+        if new_id not in out.keys():
+            out[new_id] = {}
+        out[new_id][read_id] = dict_per_read_mod[read_id]
+    out = collections.OrderedDict(sorted(out.items()))
     names = ["Cluster " + str(cl) for cl in out.keys()]
     dicts = [v for v in out.values()]
     return dicts, names
