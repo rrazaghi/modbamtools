@@ -5,6 +5,8 @@ theme:
   name: null
   custom_dir: 'cinder'
   colorscheme: Material
+  logo: img/logo.png
+repo_url: "https://github.com/rrazaghi/modbamtools"
 nav:
   - Home: index.md
   - Commands: commands.md

@@ -37,6 +37,7 @@ modbamtools plot -r chr20:58815000-58895000 \
 
 [gm12878_GNAS](figs/gm12878_GNAS.html)
 ### Haplotype separation
+We can group the reads based on `HP` tag by using `--hap` option:
 ```bash
 modbamtools plot -r chr20:58815000-58895000 \
     --gtf gencode.v38.annotation.sorted.gtf.gz \
@@ -51,6 +52,7 @@ modbamtools plot -r chr20:58815000-58895000 \
 
 [gm12878_GNAS_hap](figs/gm12878_GNAS_hap.html)
 ### Bigwig tracks
+Bigwig tracks can also be added to the plot with `--bigwig`:
 ```bash
 modbamtools plot -r chr20:58820000-58895000 \
     --gtf gencode.v38.annotation.sorted.gtf.gz \
@@ -63,7 +65,7 @@ modbamtools plot -r chr20:58820000-58895000 \
     --track-titles Genes,H3K27ac,H3k4me1\
     gm12878_ul_sup_megalodon_HP_chr20.bam 
 ```
-<iframe width=900, height=1150 frameBorder=0 src="../figs/gm12878_GNAS_hap_h3k27ac_h3k4me1.html"></iframe>
+<iframe width=900, height=1160 frameBorder=0 src="../figs/gm12878_GNAS_hap_h3k27ac_h3k4me1.html"></iframe>
 
 [gm12878_GNAS_hap_h3k27ac_h3k4me1](figs/gm12878_GNAS_hap_h3k27ac_h3k4me1.html)
 
@@ -79,7 +81,7 @@ modbamtools plot -r chr20:29460146-29507179 \
     --track-titles Genes\
     gm12878_ul_sup_megalodon_HP_chr20.bam
 ```
-<iframe width=900, height=750 frameBorder=0 src="../figs/gm12878_FRG1EP_cluster.html"></iframe>
+<iframe width=900, height=770 frameBorder=0 src="../figs/gm12878_FRG1EP_cluster.html"></iframe>
 
 [gm12878_FRG1EP_cluster](figs/gm12878_FRG1EP_cluster.html)
 

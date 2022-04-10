@@ -1,8 +1,9 @@
+![](img/logo.png)
 # Modbamtools Documentation
 
 modbamtools is a set of tools to manipulate and visualize DNA/RNA base modification data that are stored in bam format. htslib has included a support for parsing modified base tags from alignment files (MM and ML). These tags have provided a better/efficient way for storing modification data inside alignment files. For more information about these tags, please visit [here](http://samtools.github.io/hts-specs/SAMtags.pdf).
 
-For a detailed tutorial of each command, please visit out [tutorial page](./tutorial/).
+For a detailed tutorial of each command, please visit [tutorial page](./tutorial/).
 
 ## Generate modified base tags for your data
 modbamtools is technology agnostic. However, tools tailored for analysis of modified bases using long-read technology are currently adapting to using MM/ML tags at a much higher rate. Below are the list of tools that can generate these tags to be used with modbamtools:
