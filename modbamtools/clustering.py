@@ -56,15 +56,18 @@ def cluster2dicts(bams, chrom, start, end, min_cov=0.9):
     reads_dict = {}
     for rname, arr in dict_per_read_mod.items():
         if arr[0] / (end - start) > min_cov:
-            reads_dict[rname] = arr[2]
+            if len(arr[2]) >= 5:
+                reads_dict[rname] = arr[2]
 
     df = pd.DataFrame.from_dict(reads_dict, orient="index")
     df = df[df.columns[df.columns.isin(range(start, end))]]
     df = df.reindex(sorted(df.columns), axis=1)
     df.fillna(0, inplace=True)
+    # if (df.shape[0] > 15) & (df.shape[1] > 5):
     clusterer = hdbscan.HDBSCAN(metric="hamming", min_cluster_size=10, min_samples=5)
     clusterer.fit(df.to_numpy())
     cl_labels = sorted(list(clusterer.labels_))
+    print(cl_labels)
     out = {}
     for read_id, cluster in zip(list(df.index), clusterer.labels_):
         new_id = cluster + 1

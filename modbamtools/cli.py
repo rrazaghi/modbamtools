@@ -2,6 +2,7 @@ import click
 from modbamtools.modbamviz import *
 from modbamtools.calcregions import *
 from modbamtools.clustering import *
+from modbamtools.heterogeneity import *
 import io
 from PIL import Image
 from PyPDF2 import PdfFileMerger
@@ -315,7 +316,7 @@ def plot(
             "Please choose either a region (--region) or bed file of regions (--batch) to process"
         )
 
-    click.echo("Successfully processed modified bases!")
+    click.echo("Successfully processed modified bases! ")
 
 
 @cli.command(name="calcMeth")
@@ -425,3 +426,68 @@ def cluster(bam, bed, threads, out):
         for rec in results:
             print("\t".join(rec), end="\n", file=o)
 
+
+@cli.command(name="calcHet")
+@click.argument("bam", nargs=1, type=click.Path(exists=True), required=True)
+@click.option(
+    "-b",
+    "--bed",
+    is_flag=False,
+    default=None,
+    required=False,
+    type=click.Path(exists=True),
+    help="bed file of regions",
+)
+@click.option(
+    "-t", "--threads", is_flag=False, default=1, type=int, help="number of processes"
+)
+@click.option(
+    "-a",
+    "--min_calls",
+    is_flag=False,
+    default=5,
+    type=int,
+    help="filter out reads that have fewer number of modified base calls in region of interest",
+)
+@click.option(
+    "-s",
+    "--min_cov",
+    is_flag=False,
+    default=80,
+    type=float,
+    help="minimum percent coverage of a single read over region of interest",
+)
+@click.option(
+    "-hp",
+    "--hap",
+    is_flag=True,
+    default=None,
+    help="add stats for each haplotype separately to the output",
+)
+@click.option(
+    "-o", "--out", required=True, type=click.Path(), help="output path",
+)
+def calcHet(bam, bed, min_calls, min_cov, threads, hap, out):
+    "Calculate heterogeneity of modified bases for regions in a bed file"
+    data = []
+    with open(bed, "r") as f:
+        for line in f:
+
+            bed_line = line.strip().split("\t")
+            if (bed_line[0] == "chr") | (line[0] == "#"):
+                continue
+            data.append(bed_line)
+
+    results = []
+    with Pool(threads) as p:
+        s = p.starmap(
+            get_region_hap_heterogeneity,
+            zip(repeat(bam), repeat(min_calls), repeat(min_cov), repeat(hap), data),
+        )
+        results.extend(s)
+        p.close()
+        p.join()
+
+    with open(out, "w") as o:
+        for rec in results:
+            print("\t".join(rec), end="\n", file=o)

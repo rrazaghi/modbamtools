@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    
+    
+    <link rel="shortcut icon" href="../img/favicon.ico">
+
+    
+    <title>Tutorial - modbamtools</title>
+    
+
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/all.css">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.12.0/css/v4-shims.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/hack-font@3.3.0/build/web/hack.min.css">
+    <link href='//rsms.me/inter/inter.css' rel='stylesheet' type='text/css'>
+    <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,700italic,400,300,600,700&subset=latin-ext,latin' rel='stylesheet' type='text/css'>
+    <link href="../css/bootstrap-custom.min.css" rel="stylesheet">
+    <link href="../css/base.min.css" rel="stylesheet">
+    <link href="../css/cinder.min.css" rel="stylesheet">
+
+    
+        
+        <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/styles/Material.min.css">
+        
+    
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+            <script src="https://cdn.jsdelivr.net/npm/html5shiv@3.7.3/dist/html5shiv.min.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/respond.js@1.4.2/dest/respond.min.js"></script>
+        <![endif]-->
+
+    
+
+     
+</head>
+
+<body>
+
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+
+        <!-- Collapsed navigation -->
+        <div class="navbar-header">
+            <!-- Expander button -->
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            
+
+            <!-- Main title -->
+
+            
+              <a class="navbar-brand" href="..">modbamtools</a>
+            
+        </div>
+
+        <!-- Expanded navigation -->
+        <div class="navbar-collapse collapse">
+                <!-- Main navigation -->
+                <ul class="nav navbar-nav">
+                
+                
+                    <li >
+                        <a href="..">Home</a>
+                    </li>
+                
+                
+                
+                    <li >
+                        <a href="../commands/">Commands</a>
+                    </li>
+                
+                
+                
+                    <li class="active">
+                        <a href="./">Tutorial</a>
+                    </li>
+                
+                
+                </ul>
+
+            <ul class="nav navbar-nav navbar-right">
+                    <li>
+                        <a href="#" data-toggle="modal" data-target="#mkdocs_search_modal">
+                            <i class="fas fa-search"></i> Search
+                        </a>
+                    </li>
+                    <li >
+                        <a rel="prev" href="../commands/">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                    </li>
+                    <li class="disabled">
+                        <a rel="next" >
+                            Next <i class="fas fa-arrow-right"></i>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="https://github.com/rrazaghi/modbamtools/edit/master/docs/tutorial.md"><i class="fab fa-github"></i> Edit on GitHub</a>
+                    </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+    <div class="container">
+        
+        
+        <div class="col-md-3"><div class="bs-sidebar hidden-print affix well" role="complementary">
+    <ul class="nav bs-sidenav">
+        <li class="first-level active"><a href="#tutorial">Tutorial</a></li>
+            <li class="second-level"><a href="#download-data">Download Data</a></li>
+                
+            <li class="second-level"><a href="#plotting">Plotting</a></li>
+                
+                <li class="third-level"><a href="#basic-plot">Basic plot</a></li>
+                <li class="third-level"><a href="#haplotype-separation">Haplotype separation</a></li>
+                <li class="third-level"><a href="#bigwig-tracks">Bigwig tracks</a></li>
+                <li class="third-level"><a href="#cluster-plot">Cluster plot</a></li>
+                <li class="third-level"><a href="#multiple-input-regions-bed">Multiple input regions (Bed)</a></li>
+            <li class="second-level"><a href="#clustering">Clustering</a></li>
+                
+            <li class="second-level"><a href="#regional-methylation-calculation">Regional methylation calculation</a></li>
+                
+                <li class="third-level"><a href="#haplotype-stats">Haplotype stats</a></li>
+    </ul>
+</div></div>
+        <div class="col-md-9" role="main">
+
+<h1 id="tutorial">Tutorial</h1>
+<p>For this tutorial we are going to use ultra-long nanopore data from GM12878 aligned to chromosome 20 only. The modbam was generated using <a href="https://github.com/nanoporetech/megalodon">megalodon</a> and haplotype tags were assigned using <a href="https://github.com/kishwarshafin/pepper">PEPPER</a>.</p>
+<h2 id="download-data">Download Data</h2>
+<p>You can download all the files needed to go through this tutorial <a href="https://timpshare.s3.amazonaws.com/modbamtools_tutorial_files.tar.gz">here</a>.</p>
+<p>After extractiong, you should have the following files:</p>
+<pre><code>.
+├── gencode.v38.annotation.sorted.gtf.gz
+├── gencode.v38.annotation.sorted.gtf.gz.tbi
+├── genes.bed
+├── gm12878_H3K27ac_ENCFF798KYP.bigWig
+├── gm12878_H3K4me1_ENCFF190RZM.bigWig
+├── gm12878_ul_sup_megalodon_HP_chr20.bam
+├── gm12878_ul_sup_megalodon_HP_chr20.bam.bai
+└── promoters.bed
+</code></pre>
+<h2 id="plotting">Plotting</h2>
+<h3 id="basic-plot">Basic plot</h3>
+<p>First let's start with plotting an imprinted region for GNAS gene:</p>
+<pre><code class="language-bash">modbamtools plot -r chr20:58815000-58895000 \
+    --gtf gencode.v38.annotation.sorted.gtf.gz \
+    --out . \
+    --prefix gm12878_GNAS \
+    --samples GM12878 \
+    --track-titles Genes\
+    gm12878_ul_sup_megalodon_HP_chr20.bam 
+</code></pre>
+<iframe width=900, height=1050 frameBorder=0 src="../figs/gm12878_GNAS.html"></iframe>
+
+<p><a href="../figs/gm12878_GNAS.html">gm12878_GNAS</a></p>
+<h3 id="haplotype-separation">Haplotype separation</h3>
+<p>We can group the reads based on <code>HP</code> tag by using <code>--hap</code> option:</p>
+<pre><code class="language-bash">modbamtools plot -r chr20:58815000-58895000 \
+    --gtf gencode.v38.annotation.sorted.gtf.gz \
+    --out . \
+    --hap \
+    --prefix gm12878_GNAS \
+    --samples GM12878 \
+    --track-titles Genes\
+    gm12878_ul_sup_megalodon_HP_chr20.bam 
+</code></pre>
+<iframe width=900, height=1000 frameBorder=0 src="../figs/gm12878_GNAS_hap.html"></iframe>
+
+<p><a href="../figs/gm12878_GNAS_hap.html">gm12878_GNAS_hap</a></p>
+<h3 id="bigwig-tracks">Bigwig tracks</h3>
+<p>Bigwig tracks can also be added to the plot with <code>--bigwig</code>:</p>
+<pre><code class="language-bash">modbamtools plot -r chr20:58820000-58895000 \
+    --gtf gencode.v38.annotation.sorted.gtf.gz \
+    --out . \
+    --hap \
+    --bigwig gm12878_H3K27ac_ENCFF798KYP.bigWig \
+    --bigwig gm12878_H3K4me1_ENCFF190RZM.bigWig \
+    --prefix gm12878_GNAS_hap_h3k27ac_h3k4me1 \
+    --samples GM12878 \
+    --track-titles Genes,H3K27ac,H3k4me1\
+    gm12878_ul_sup_megalodon_HP_chr20.bam 
+</code></pre>
+<iframe width=900, height=1160 frameBorder=0 src="../figs/gm12878_GNAS_hap_h3k27ac_h3k4me1.html"></iframe>
+
+<p><a href="../figs/gm12878_GNAS_hap_h3k27ac_h3k4me1.html">gm12878_GNAS_hap_h3k27ac_h3k4me1</a></p>
+<h3 id="cluster-plot">Cluster plot</h3>
+<p>We can use <code>--cluster</code> option to perform clustering on the go and group reads based on the assigned cluster. To show an example, we focus on gene FRG1EP (you can find unclustered plot <a href="../figs/gm12878_FRG1EP.html">here</a>). For more information about the clustering algorithm see section clustering below.</p>
+<pre><code class="language-bash">modbamtools plot -r chr20:29460146-29507179 \
+    --gtf gencode.v38.annotation.sorted.gtf.gz \
+    --out . \
+    --cluster \
+    --prefix gm12878_FRG1EP_cluster \
+    --track-titles Genes\
+    gm12878_ul_sup_megalodon_HP_chr20.bam
+</code></pre>
+<iframe width=900, height=770 frameBorder=0 src="../figs/gm12878_FRG1EP_cluster.html"></iframe>
+
+<p><a href="../figs/gm12878_FRG1EP_cluster.html">gm12878_FRG1EP_cluster</a></p>
+<h3 id="multiple-input-regions-bed">Multiple input regions (Bed)</h3>
+<p>If we are interested in plotting multiple regions simultaneously, we can feed modbamtools a bed file. Output formats can either be <code>html</code> or <code>pdf</code> in a single report document.</p>
+<pre><code class="language-bash">modbamtools plot --batch genes.bed \
+    --gtf gencode.v38.annotation.sorted.gtf.gz \
+    --out . \
+    --hap \
+    --prefix gm12878_batch \
+    --samples GM12878 \
+    --track-titles Genes\
+    gm12878_ul_sup_megalodon_HP_chr20.bam
+</code></pre>
+<p><a href="../figs/gm12878_batch.html">gm12878_batch</a></p>
+<h2 id="clustering">Clustering</h2>
+<p>modbamtools uses a hierarichal density-based spatial clustering of noisy data algorithm (<a href="https://github.com/scikit-learn-contrib/hdbscan">HDBSCAN</a>) to cluster reads based on their modification state. <code>modbamtools cluster</code> takes a bed file as input and appends each line with two columns : <code>number of clusters found</code>, and <code>number of reads used for clustering after a quality control step</code></p>
+<div class="alert alert-danger" role="alert">
+  It should be noted that modification calls are often noisy and sparse. Therefore extra care should be applied when clustering. Best way is to plot clustering results using `modbamtools plot --cluster` to make sure clustering algorithm fits the nature of your data
+</div>
+
+<p>Let's try it on our <code>genes.bed</code> file:</p>
+<pre><code class="language-bash">modbamtools cluster --bed genes.bed \
+    --threads 3 \
+    --out genes_clustered.bed \
+    gm12878_ul_sup_megalodon_HP_chr20.bam
+</code></pre>
+<p>We can see from the output below that all 3 regions have 2 clusters. We can confirm this by using the plotting commands above.</p>
+<pre><code>chr20   29460146    29507179    FRG1EP  unprocessed_pseudogene  ENSG00000282995.1   2   42
+chr20   58818918    58850903    GNAS-AS1    lncRNA  ENSG00000235590.7   2   30
+chr20   63556085    63576239    HELZ2   protein_coding  ENSG00000130589.16  2   37
+</code></pre>
+<div class="alert alert-info" role="alert">
+  This command is especially useful when trying to distinguish reads associated with tumors in a heterogenous sample. You can also feed multiple modbams to find differentially clustered reads between different samples!
+</div>
+
+<h2 id="regional-methylation-calculation">Regional methylation calculation</h2>
+<p>modbamtools <code>calcMeth</code> will accept a bed file as input and append modification stats as extra columns to each region of interest. For each region, Average percent modification is calculated for each read that spans a minimum portion of the region (This can be tweaked by <code>--min_cov</code>. Default is 80%). Each read has to have at least 5 calls to be considered valid for analysis (This can also be changed with <code>--min_calls</code>). Then, Average percent modifcation for the region is calculated using valid reads. The appended columns are outlined below:</p>
+<table class="table table-bordered">
+  <thead>
+      <tr>
+        <th>Average Percent Modification</th>
+        <th>Standrad Deviation for Avg Percent Modification</th>
+        <th>Coverage</th>
+      </tr>
+      </thead>
+</table>
+
+<p>Let's try it on our <code>promoters.bed</code> file:</p>
+<pre><code class="language-bash">modbamtools calcMeth --bed promoters.bed \
+    --threads 3 \
+    --out promoters_calcMeth.bed \
+    gm12878_ul_sup_megalodon_HP_chr20.bam
+</code></pre>
+<pre><code>chr20   29496679    29498179    FRG1EP  unprocessed_pseudogene  ENSG00000282995.1   63.00634042910756   23.160648801539175  79
+chr20   58850403    58851903    GNAS-AS1    lncRNA  ENSG00000235590.7   58.26586037568643   30.18888731341584   48
+chr20   63573739    63575239    HELZ2   protein_coding  ENSG00000130589.16  36.52218479283339   8.51755978542393    44
+</code></pre>
+<h3 id="haplotype-stats">Haplotype stats</h3>
+<p>We can also output stats for each haplotype based on <code>HP</code> tag in the modbam with <code>--hap</code>. The added columns when this option is used are the following:</p>
+<table class="table table-bordered">
+  <thead>
+      <tr>
+        <th>Average Percent Modification</th>
+        <th>Standrad Deviation for Avg Percent Modification</th>
+        <th>Coverage</th>
+        <th>Average Percent Modification (haplotype 1)</th>
+        <th>Standrad Deviation for Avg Percent Modification (haplotype 1)</th>
+        <th>Coverage (haplotype 1)</th>
+        <th>Average Percent Modification (haplotype 2)</th>
+        <th>Standrad Deviation for Avg Percent Modification (haplotype 2)</th>
+        <th>Coverage (haplotype 2)</th>
+      </tr>
+      </thead>
+</table>
+
+<pre><code class="language-bash">modbamtools calcMeth --bed promoters.bed \
+    --threads 3 \
+    --hap \
+    --out promoters_calcMeth_hap.bed \
+    gm12878_ul_sup_megalodon_HP_chr20.bam
+</code></pre>
+<pre><code>chr20   29496679    29498179    FRG1EP  unprocessed_pseudogene  ENSG00000282995.1   63.00634042910756   23.160648801539175  79  44.27765063921806   18.419436878488273  36  80.732273703281 10.455159906458562  36
+chr20   58850403    58851903    GNAS-AS1    lncRNA  ENSG00000235590.7   58.26586037568643   30.18888731341584   48  26.62614126968194   6.853899031338103   22  86.90174211774595   5.326307202363974   20
+chr20   63573739    63575239    HELZ2   protein_coding  ENSG00000130589.16  36.52218479283339   8.51755978542393    44  38.93859253773206   8.05201039505814    16  35.09734468342445   8.949332073699683   25
+</code></pre></div>
+        
+        
+    </div>
+
+    
+      <footer class="col-md-12 text-center">
+          
+          
+            <hr>
+            <p>
+            <small>Documentation built with <a href="http://www.mkdocs.org/">MkDocs</a>.</small>
+            </p>
+          
+
+          
+          
+      </footer>
+    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <script src="../js/bootstrap-3.0.3.min.js"></script>
+
+    
+    <script src="//cdn.jsdelivr.net/gh/highlightjs/cdn-release@9.18.0/build/highlight.min.js"></script>
+        
+    <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    <script>var base_url = ".."</script>
+    
+    <script src="../js/base.js"></script>
+    <script src="../search/main.js"></script>
+
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                    <span class="sr-only">Close</span>
+                </button>
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    </body>
+
+</html>

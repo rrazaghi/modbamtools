@@ -43,9 +43,13 @@ class Plotter:
         )
         self.plot_height, self.row_heights = get_heights(self.tracks)
         if self.track_titles:
-            self.titles = self.track_titles + [""] + samp_names
+            self.titles = self.track_titles + ["Methylation Frequency"] + samp_names
         if not self.track_titles:
-            self.titles = [""] * (self.num_tracks - len(dicts)) + self.samp_names
+            self.titles = (
+                [""] * (self.num_tracks - len(dicts) - 1)
+                + ["Methylation Frequency"]
+                + self.samp_names
+            )
 
         # self.tracks_titles = ["Genes","Enhancers","Methylation frequency plots"]
         self.fig = make_subplots(

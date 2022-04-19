@@ -57,9 +57,23 @@ def calc_freq(dict_per_read_mod, start, end):
         perc_meth = count[1] * 100 / (count[0] + count[1])
         freq["x"].append(pos)
         freq["y"].append(perc_meth)
+    # print(freq["y"])
 
     #     freq_smooth["y"] = lowess(freq["y"], freq["x"], frac=0.1,return_sorted=False)
-    freq_smooth["y"] = savgol_filter(freq["y"], 51, 3)
+    length = len(freq["y"])
+    if length <= 5:
+        window = 1
+        poly = 0
+    elif (length > 5) & (length <= 20):
+        window = 5
+        poly = 3
+    elif (length > 20) & (length <= 50):
+        window = 21
+        poly = 3
+    else:
+        window = 51
+        poly = 3
+    freq_smooth["y"] = savgol_filter(freq["y"], window, poly)
     freq_smooth["x"] = freq["x"]
     return freq, freq_smooth
 
@@ -129,6 +143,8 @@ def process_bam(
             read_len = read_end - read_start
             for pos_mod in read.mod_sites:
                 qname, rpos, qpos, strand, mod_strand, cbase, mbase, score = pos_mod
+                if rpos == -1:  # weird remora-bonito hg002 calls
+                    continue
                 if strand == "-":
                     call = binerize_mod_call(score, min_prob, max_prob)
                     if call != -1:
