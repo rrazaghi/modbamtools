@@ -165,6 +165,14 @@ def listify(ctx, param, value):
     type=int,
     help="cluster the reads based on modification state",
 )
+@click.option(
+    "-ht",
+    "--heterogeneity",
+    is_flag=True,
+    default=None,
+    type=int,
+    help="plot degree of modification heterogeneity across the region",
+)
 def plot(
     bams,
     region,
@@ -185,6 +193,7 @@ def plot(
     batch,
     track_titles,
     cluster,
+    heterogeneity,
 ):
     "Plot single-read base modification data"
     if batch:
@@ -237,6 +246,7 @@ def plot(
                     bigwigs=bigwig,
                     bedgraphs=bedgraph,
                     track_titles=track_titles,
+                    heterogeneity=heterogeneity,
                 )
                 plot.plot_tracks()
                 if height:
@@ -298,6 +308,7 @@ def plot(
             bigwigs=bigwig,
             bedgraphs=bedgraph,
             track_titles=track_titles,
+            heterogeneity=heterogeneity,
         )
         fig.plot_tracks()
         if height:

@@ -20,6 +20,7 @@ class Plotter:
         bigwigs=None,
         bedgraphs=None,
         track_titles=None,
+        heterogeneity=None,
     ) -> None:
         self.chrom = chrom
         self.start = start
@@ -31,6 +32,7 @@ class Plotter:
         self.bedgraphs = bedgraphs
         self.samp_names = samp_names
         self.track_titles = track_titles
+        self.heterogeneity = heterogeneity
         self.tracks, self.num_tracks = get_tracks(
             self.chrom,
             self.start,
@@ -40,16 +42,33 @@ class Plotter:
             self.beds,
             self.bigwigs,
             self.bedgraphs,
+            self.heterogeneity,
         )
         self.plot_height, self.row_heights = get_heights(self.tracks)
         if self.track_titles:
-            self.titles = self.track_titles + ["Methylation Frequency"] + samp_names
+            if self.heterogeneity:
+                self.titles = (
+                    self.track_titles
+                    + ["Methylation Heterogeneity"]
+                    + ["Methylation Frequency"]
+                    + samp_names
+                )
+            else:
+                self.titles = self.track_titles + ["Methylation Frequency"] + samp_names
         if not self.track_titles:
-            self.titles = (
-                [""] * (self.num_tracks - len(dicts) - 1)
-                + ["Methylation Frequency"]
-                + self.samp_names
-            )
+            if self.heterogeneity:
+                self.titles = (
+                    [""] * (self.num_tracks - len(dicts) - 1)
+                    + ["Methylation Heterogeneity"]
+                    + ["Methylation Frequency"]
+                    + self.samp_names
+                )
+            else:
+                self.titles = (
+                    [""] * (self.num_tracks - len(dicts) - 1)
+                    + ["Methylation Frequency"]
+                    + self.samp_names
+                )
 
         # self.tracks_titles = ["Genes","Enhancers","Methylation frequency plots"]
         self.fig = make_subplots(
@@ -96,21 +115,46 @@ class Plotter:
                 self.fig.update_xaxes(visible=False, row=i, col=1)
                 i += 1
         if self.dicts:
-            freq_row = i
-            i += 1
-            for freq_traces, single_read_traces in zip(
-                self.tracks["modbase_freq"], self.tracks["modbase"]
-            ):
-                self.fig.add_traces(
-                    freq_traces[0], rows=[freq_row, freq_row], cols=[1, 1]
-                )
-                self.fig.update_xaxes(visible=False, row=freq_row, col=1)
+            if self.heterogeneity:
+                het_row = i
+                freq_row = i + 1
+                i += 2
+                for freq_traces, single_read_traces, het_traces in zip(
+                    self.tracks["modbase_freq"],
+                    self.tracks["modbase"],
+                    self.tracks["heterogeneity"],
+                ):
+                    self.fig.add_traces(
+                        freq_traces[0], rows=[freq_row, freq_row], cols=[1, 1]
+                    )
+                    self.fig.update_xaxes(visible=False, row=freq_row, col=1)
 
-                for trace in single_read_traces[0]:
-                    self.fig.add_trace(trace, row=i, col=1)
-                self.fig.update_xaxes(visible=False, row=i, col=1)
-                self.fig.update_yaxes(visible=False, row=i, col=1)
+                    self.fig.add_traces(
+                        het_traces[0], rows=[het_row, het_row], cols=[1, 1]
+                    )
+                    self.fig.update_xaxes(visible=False, row=het_row, col=1)
+
+                    for trace in single_read_traces[0]:
+                        self.fig.add_trace(trace, row=i, col=1)
+                    self.fig.update_xaxes(visible=False, row=i, col=1)
+                    self.fig.update_yaxes(visible=False, row=i, col=1)
+                    i += 1
+            else:
+                freq_row = i
                 i += 1
+                for freq_traces, single_read_traces in zip(
+                    self.tracks["modbase_freq"], self.tracks["modbase"]
+                ):
+                    self.fig.add_traces(
+                        freq_traces[0], rows=[freq_row, freq_row], cols=[1, 1]
+                    )
+                    self.fig.update_xaxes(visible=False, row=freq_row, col=1)
+
+                    for trace in single_read_traces[0]:
+                        self.fig.add_trace(trace, row=i, col=1)
+                    self.fig.update_xaxes(visible=False, row=i, col=1)
+                    self.fig.update_yaxes(visible=False, row=i, col=1)
+                    i += 1
 
         self.fig.update_xaxes(visible=True, row=i - 1, col=1)
         self.fig.update_xaxes(

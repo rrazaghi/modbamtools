@@ -1,6 +1,7 @@
 from modbamtools.utils import *
 from operator import itemgetter
 from itertools import groupby
+from scipy.signal import savgol_filter
 
 
 def binerize_mod_het_call(call, min_prob=0.5, max_prob=0.5):
@@ -113,15 +114,12 @@ def get_region_hap_heterogeneity(bam, min_calls, min_cov, hp, bed_line):
     return bed_line
 
 
-def get_plot_heterogeneity(
-    bam, chrom, start, end, min_calls, min_cov, hp, tag_name=None, tag_value=None
-):
+def get_dict_heterogeneity(samp_dict, start, end, color):
 
-    window = 20
-    binsize = 100
+    window = 100
+    binsize = 1000
     regions = []
-    # start = 200
-    # end = 300
+    het_dict = {"x": [], "y": [], "y_smooth": []}
     for i in range(start, end, window):
         if i + binsize > end:
             regions.append((i, end))
@@ -130,6 +128,108 @@ def get_plot_heterogeneity(
             regions.append((i, i + binsize))
             if i + binsize == end:
                 break
+
+    for region in regions:
+        hets = []
+        for rname, arr in samp_dict.items():
+            signs = []
+            for pos, value in arr[2].items():
+                if (pos >= region[0]) & (pos <= region[1]):
+                    if value == 0:
+                        signs.append(-1)
+                    if value == 1:
+                        signs.append(1)
+
+            if len(signs) <= 5:
+                continue
+            else:
+                zero_crossings = np.where(np.diff(np.sign(signs)))[0]
+                ranges = []
+                for k, g in groupby(enumerate(zero_crossings), lambda x: x[0] - x[1]):
+                    group = list(map(itemgetter(1), g))
+                    if len(group) > 1:
+                        ranges.append(range(group[0], group[-1]))
+                    else:
+                        ranges.append(group[0])
+
+                hets.append(len(ranges))
+
+        if len(hets) <= 5:
+            continue
+        else:
+            het_dict["x"].append((region[0] + region[1]) / 2)
+            het_dict["y"].append(np.mean(hets))
+
+    length = len(het_dict["y"])
+    if length <= 5:
+        smooth_window = 1
+        poly = 0
+    elif (length > 5) & (length <= 20):
+        smooth_window = 5
+        poly = 3
+    elif (length > 20) & (length <= 50):
+        smooth_window = 21
+        poly = 3
+    else:
+        smooth_window = 51
+        poly = 3
+    het_dict["y_smooth"] = savgol_filter(het_dict["y"], smooth_window, poly)
+
+    height = 200  # px
+
+    traces = []
+
+    traces.append(
+        go.Scattergl(
+            x=het_dict["x"],
+            y=het_dict["y"],
+            mode="markers",
+            marker=dict(size=3, color=color,),
+            name="",
+            showlegend=False,
+        )
+    )
+
+    traces.append(
+        go.Scattergl(
+            x=het_dict["x"],
+            y=het_dict["y_smooth"],
+            mode="lines",
+            marker=dict(size=3, color=color,),
+            name="",
+            showlegend=False,
+        )
+    )
+
+    return traces, height
+
+
+def get_plot_heterogeneity(bam, chrom, start, end, hp, min_calls=5, min_cov=80):
+
+    window = 20
+    binsize = 100
+    regions = []
+    for i in range(start, end, window):
+        if i + binsize > end:
+            regions.append((i, end))
+            break
+        else:
+            regions.append((i, i + binsize))
+            if i + binsize == end:
+                break
+    length = len(regions)
+    if length <= 5:
+        smooth_window = 1
+        poly = 0
+    elif (length > 5) & (length <= 20):
+        smooth_window = 5
+        poly = 3
+    elif (length > 20) & (length <= 50):
+        smooth_window = 21
+        poly = 3
+    else:
+        smooth_window = 51
+        poly = 3
 
     het = {"all": [], "hp1": [], "hp2": [], "x": [], "x1": [], "x2": []}
     for region in regions:
@@ -161,6 +261,8 @@ def get_plot_heterogeneity(
             if hp2_mean != -1:
                 het["x2"].append((region[0] + region[1]) / 2)
                 het["hp2"].append(hp2_mean)
+            het["hp1_smooth"] = savgol_filter(het["hp1"], smooth_window, poly)
+            het["hp2_smooth"] = savgol_filter(het["hp2"], smooth_window, poly)
         else:
             mean, std, cov = get_region_heterogeneity(
                 bam, chrom, region[0], region[1], min_calls, min_cov
@@ -168,4 +270,9 @@ def get_plot_heterogeneity(
             if mean != -1:
                 het["x"].append((region[0] + region[1]) / 2)
                 het["all"].append(mean)
+            het["all_smooth"] = savgol_filter(het["all"], smooth_window, poly)
+
+        track_height = 100  # px
+
+        return het, track_height
 
