@@ -262,7 +262,7 @@ def get_tracks(
 def get_heights(tracks):
     heights = []
     for track_type, sub_tracks in tracks.items():
-        if track_type == "heterogeneity":
+        if (track_type == "heterogeneity") & (len(sub_tracks) != 0):
             heights.append(sub_tracks[0][-1])
             continue
         if track_type == "modbase_freq":
