@@ -160,7 +160,8 @@ def parse_gtf_exons(gtf_path, chrom, start, end, vertical_spacing=20):
         else:
 
             if record.gene_id not in recs.keys():
-                recs[record.gene_id] = {"gene": [], "exons": []}
+                if (record.feature == "gene") | (record.feature == "exon"):
+                    recs[record.gene_id] = {"gene": [], "exons": []}
             if record.feature == "gene":
                 recs[record.gene_id]["gene"] = (record.start, record.end, record.strand)
             if record.feature == "exon":
