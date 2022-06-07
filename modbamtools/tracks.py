@@ -9,11 +9,14 @@ def parse_bigwig(bigwig_path, chrom, start, end):
     bw = pyBigWig.open(bigwig_path)
     x = list(range(start, end))
     y = bw.values(chrom, start, end)
-    trace = go.Scattergl(
+    trace = go.Scatter(
         x=x,
         y=y,
         mode="lines",
-        marker=dict(size=6, color="cadetblue",),
+        marker=dict(
+            size=6,
+            color="cadetblue",
+        ),
         name="",
         showlegend=False,
     )
@@ -49,7 +52,10 @@ def parse_bedgraph(bedgraph_path, chrom, start, end):
         x=x,
         y=y,
         mode="lines",
-        marker=dict(size=6, color="goldenrod",),
+        marker=dict(
+            size=6,
+            color="goldenrod",
+        ),
         name="",
         showlegend=False,
     )
@@ -69,7 +75,10 @@ def plot_frequencies(dict_per_read_mod, start, end, color):
             x=freq["x"],
             y=freq["y"],
             mode="markers",
-            marker=dict(size=3, color=color,),
+            marker=dict(
+                size=3,
+                color=color,
+            ),
             name="",
             showlegend=False,
         )
@@ -80,7 +89,10 @@ def plot_frequencies(dict_per_read_mod, start, end, color):
             x=freq_smooth["x"],
             y=freq_smooth["y"],
             mode="lines",
-            marker=dict(size=3, color=color,),
+            marker=dict(
+                size=3,
+                color=color,
+            ),
             name="",
             showlegend=False,
         )
@@ -96,11 +108,14 @@ def plot_freq_diff(
     freq_hp1, freq_smooth_hp1 = calc_freq(dict_per_read_mod_hp1, start, end)
     freq_hp2, freq_smooth_hp2 = calc_freq(dict_per_read_mod_hp2, start, end)
 
-    return go.Scattergl(
+    return go.Scatter(
         x=freq_smooth_hp2["x"],
         y=[a_i - b_i for a_i, b_i in zip(freq_smooth_hp2["y"], freq_smooth_hp1["y"])],
         mode="lines",
-        marker=dict(size=6, color=color,),
+        marker=dict(
+            size=6,
+            color=color,
+        ),
         name="",
     )
 

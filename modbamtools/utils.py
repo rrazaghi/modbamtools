@@ -54,6 +54,8 @@ def calc_freq(dict_per_read_mod, start, end):
             count[0] = 0
         if 1 not in count.keys():
             count[1] = 0
+        if (count[0] + count[1]) <= 3:
+            continue
         perc_meth = count[1] * 100 / (count[0] + count[1])
         freq["x"].append(pos)
         freq["y"].append(perc_meth)
@@ -68,7 +70,7 @@ def calc_freq(dict_per_read_mod, start, end):
         window = 5
         poly = 3
     elif (length > 20) & (length <= 50):
-        window = 21
+        window = 19
         poly = 3
     else:
         window = 51

@@ -75,7 +75,7 @@ class Plotter:
             rows=self.num_tracks,
             cols=1,
             shared_xaxes=True,
-            vertical_spacing=0.04,
+            vertical_spacing=0.02,
             row_heights=self.row_heights,
             subplot_titles=self.titles,
         )
