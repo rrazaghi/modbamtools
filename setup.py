@@ -39,7 +39,7 @@ setup(
         "pandas==1.1.1",
         "numpy==1.22.3",
         "plotly==5.5.0",
-        "modbampy==0.5.0",
+        "modbampy==0.5.3",
         "kaleido==0.2.1",
         "pyBigWig==0.3.18",
         "PyPDF2",

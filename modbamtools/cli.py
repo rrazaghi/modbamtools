@@ -112,7 +112,11 @@ def listify(ctx, param, value):
     help="reads will be grouped by strand in bam",
 )
 @click.option(
-    "-o", "--out", required=True, type=click.Path(exists=True), help="output path",
+    "-o",
+    "--out",
+    required=True,
+    type=click.Path(exists=True),
+    help="output path",
 )
 @click.option(
     "-p",
@@ -296,7 +300,6 @@ def plot(
                 min_prob=can_prob,
                 max_prob=mod_prob,
             )
-
         fig = Plotter(
             dicts=dicts,
             samp_names=titles,
@@ -368,7 +371,11 @@ def plot(
     help="add stats for each haplotype separately to the output",
 )
 @click.option(
-    "-o", "--out", required=True, type=click.Path(), help="output path",
+    "-o",
+    "--out",
+    required=True,
+    type=click.Path(),
+    help="output path",
 )
 def calcMeth(bam, bed, min_calls, min_cov, threads, hap, out):
     "Calculate methylation statistics for regions in a bed file"
@@ -411,7 +418,11 @@ def calcMeth(bam, bed, min_calls, min_cov, threads, hap, out):
     "-t", "--threads", is_flag=False, default=1, type=int, help="number of processes"
 )
 @click.option(
-    "-o", "--out", required=True, type=click.Path(), help="output path",
+    "-o",
+    "--out",
+    required=True,
+    type=click.Path(),
+    help="output path",
 )
 def cluster(bam, bed, threads, out):
     "Calculate clustering statistics for regions in a bed file"
@@ -476,7 +487,11 @@ def cluster(bam, bed, threads, out):
     help="add stats for each haplotype separately to the output",
 )
 @click.option(
-    "-o", "--out", required=True, type=click.Path(), help="output path",
+    "-o",
+    "--out",
+    required=True,
+    type=click.Path(),
+    help="output path",
 )
 def calcHet(bam, bed, min_calls, min_cov, threads, hap, out):
     "Calculate heterogeneity of modified bases for regions in a bed file"

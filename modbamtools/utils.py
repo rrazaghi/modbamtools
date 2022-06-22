@@ -39,7 +39,7 @@ def overlaps(a, b):
 
 
 def calc_freq(dict_per_read_mod, start, end):
-
+    # print(dict_per_read_mod)
     df = pd.DataFrame.from_dict(
         {k: v[2] for k, v in dict_per_read_mod.items()}, orient="index"
     )
@@ -288,4 +288,3 @@ def get_reads(
             dicts.append(reads)
 
     return dicts, titles
-
