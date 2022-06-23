@@ -241,35 +241,75 @@ def parse_gtf_exons(gtf_path, chrom, start, end, vertical_spacing=20):
     return ylim, name_traces, shapes, height
 
 
-def parse_bed_rectangle(bed_path, chrom, start, end):
+def parse_bed_rectangle(bed_path, chrom, start, end, vertical_spacing=20):
+
+    per_line_height = 50  # px
     shapes = []
     bed = pysam.TabixFile(bed_path)
-    records = set()
+    records = {}
+    name_exists = 0
     for record in bed.fetch(chrom, start, end):
 
-        line = record.split("\t")
+        line = record.strip().split("\t")
+        if len(line) == 3:
+            coo = [int(i) for i in line[1:3]]
+            records["\t".join(coo)] = [
+                coo[1] - coo[0],
+                coo,
+                record_text_plot(coo[0], coo[1], start, end),
+            ]
+        else:
+            name = line[3]
+            coo = [int(i) for i in line[1:3]]
+            records[name] = [
+                coo[1] - coo[0],
+                coo,
+                record_text_plot(coo[0], coo[1], start, end),
+            ]
+            name_exists = 1
 
-        coo = line[0:3]
-        coo = "\t".join(coo)
-        records.add(coo)
+    records = queue_reads(records)
+    name_traces = []
+    shapes = []
+    i = 0
+    row = 0
+    for row, record_list in records.items():
 
-    for record in records:
-        coo = record.split("\t")
-        color = "Crimson"
-        fill = "Salmon"
-        shapes.append(
-            dict(
-                type="rect",
-                x0=coo[1],
-                y0=0,
-                x1=coo[2],
-                y1=1,
-                line=dict(color=color, width=2),
-                fillcolor=fill,
+        for record in record_list:
+
+            color = "Crimson"
+            fill = "Salmon"
+            if name_exists:
+                txt = record[0]
+            else:
+                txt = ""
+            name_traces.append(
+                go.Scatter(
+                    x=record[1][2][0],
+                    y=[(i + 4)],
+                    text=txt,
+                    mode="text",
+                    textposition=record[1][2][1],
+                    showlegend=False,
+                )
             )
-        )
 
-    ylim = [-1, 2]
-    height = 50  # px
+            shapes.append(
+                dict(
+                    type="rect",
+                    x0=record[1][1][0],
+                    y0=i + 2,
+                    x1=record[1][1][1],
+                    y1=(i - 2),
+                    line=dict(color=color, width=2),
+                    fillcolor=fill,
+                    opacity=1,
+                )
+            )
 
-    return ylim, shapes, height
+        i -= vertical_spacing
+
+    ylim = [i, 20]
+    height = (abs(row) + 1) * per_line_height
+
+    return ylim, name_traces, shapes, height

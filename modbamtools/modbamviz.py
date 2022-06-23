@@ -96,10 +96,11 @@ class Plotter:
                 i += 1
         if self.beds:
             for elements in self.tracks["bed"]:
-                for shape in elements[1]:
+                for name_trace in elements[1]:
+                    self.fig.append_trace(name_trace, row=i, col=1)
+                for shape in elements[2]:
                     self.fig.add_shape(shape, row=i, col=1)
                 self.fig.update_xaxes(visible=False, row=i, col=1)
-                self.fig.update_yaxes(visible=False, row=i, col=1)
                 self.fig.update_yaxes(range=elements[0], visible=False, row=i, col=1)
                 i += 1
         if self.bigwigs:
