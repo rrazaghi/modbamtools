@@ -247,27 +247,26 @@ def parse_bed_rectangle(bed_path, chrom, start, end, vertical_spacing=20):
     shapes = []
     bed = pysam.TabixFile(bed_path)
     records = {}
-    name_exists = 0
     for record in bed.fetch(chrom, start, end):
 
         line = record.strip().split("\t")
         if len(line) == 3:
             coo = [int(i) for i in line[1:3]]
-            records["\t".join(coo)] = [
+            records["\t".join(line[1:3])] = [
                 coo[1] - coo[0],
                 coo,
                 record_text_plot(coo[0], coo[1], start, end),
+                "",
             ]
         else:
             name = line[3]
             coo = [int(i) for i in line[1:3]]
-            records[name] = [
+            records["\t".join(line[1:3])] = [
                 coo[1] - coo[0],
                 coo,
                 record_text_plot(coo[0], coo[1], start, end),
+                name,
             ]
-            name_exists = 1
-
     records = queue_reads(records)
     name_traces = []
     shapes = []
@@ -279,15 +278,12 @@ def parse_bed_rectangle(bed_path, chrom, start, end, vertical_spacing=20):
 
             color = "Crimson"
             fill = "Salmon"
-            if name_exists:
-                txt = record[0]
-            else:
-                txt = ""
+
             name_traces.append(
                 go.Scatter(
                     x=record[1][2][0],
                     y=[(i + 4)],
-                    text=txt,
+                    text=record[1][3],
                     mode="text",
                     textposition=record[1][2][1],
                     showlegend=False,
