@@ -177,6 +177,14 @@ def listify(ctx, param, value):
     type=int,
     help="plot degree of modification heterogeneity across the region",
 )
+@click.option(
+    "-fs",
+    "--font_size",
+    is_flag=False,
+    default=18,
+    type=int,
+    help="global font size",
+)
 def plot(
     bams,
     region,
@@ -198,6 +206,7 @@ def plot(
     track_titles,
     cluster,
     heterogeneity,
+    font_size,
 ):
     "Plot single-read base modification data"
     if batch:

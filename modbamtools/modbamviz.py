@@ -21,6 +21,7 @@ class Plotter:
         bedgraphs=None,
         track_titles=None,
         heterogeneity=None,
+        font_size=18,
     ) -> None:
         self.chrom = chrom
         self.start = start
@@ -33,6 +34,7 @@ class Plotter:
         self.samp_names = samp_names
         self.track_titles = track_titles
         self.heterogeneity = heterogeneity
+        self.font_size = font_size
         self.tracks, self.num_tracks = get_tracks(
             self.chrom,
             self.start,
@@ -79,6 +81,7 @@ class Plotter:
             row_heights=self.row_heights,
             subplot_titles=self.titles,
         )
+        self.fig.update_layout(font=dict(size=self.font_size))
 
     def plot_tracks(self):
         """
@@ -162,3 +165,4 @@ class Plotter:
             range=[self.start, self.end], tickformat=",d", title_text="Coordinate"
         )
         self.fig.update_layout(height=self.plot_height)
+        self.fig.update_annotations(font_size=self.font_size)
