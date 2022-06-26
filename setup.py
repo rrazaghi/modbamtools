@@ -35,9 +35,9 @@ setup(
     install_requires=[
         "click==8.0.4",
         "pysam==0.18.0",
-        "scipy==1.5.0",
+        "scipy>=1.4.0",
         "pandas==1.1.1",
-        "numpy==1.22.3",
+        "numpy>=1.13.3",
         "plotly==5.5.0",
         "modbampy==0.5.3",
         "kaleido==0.2.1",
