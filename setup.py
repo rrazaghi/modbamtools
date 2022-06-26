@@ -37,7 +37,7 @@ setup(
         "pysam>=0.18.0",
         "scipy>=1.4.0",
         "pandas>=1.0.0",
-        "numpy>=1.13.3",
+        "numpy>=1.22.0",
         "plotly>=5.5.0",
         "modbampy==0.5.3",
         "kaleido>=0.2.1",
