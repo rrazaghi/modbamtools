@@ -48,5 +48,5 @@ setup(
         "tqdm",
     ],
     extras_require={"test": ["pytest"]},
-    python_requires=">=3.8, <=3.10",
+    python_requires=">=3.8, <=3.10.5",
 )
