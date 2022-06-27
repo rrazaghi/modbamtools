@@ -260,6 +260,8 @@ def plot(
                     bedgraphs=bedgraph,
                     track_titles=track_titles,
                     heterogeneity=heterogeneity,
+                    font_size=font_size,
+                    fmt=fmt,
                 )
                 plot.plot_tracks()
                 if height:
@@ -321,6 +323,8 @@ def plot(
             bedgraphs=bedgraph,
             track_titles=track_titles,
             heterogeneity=heterogeneity,
+            font_size=font_size,
+            fmt=fmt,
         )
         fig.plot_tracks()
         if height:

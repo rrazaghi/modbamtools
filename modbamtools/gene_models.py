@@ -133,8 +133,8 @@ def merge_exons(intervals):
     return merged
 
 
-def parse_gtf_exons(gtf_path, chrom, start, end, vertical_spacing=20):
-    per_line_height = 50  # px
+def parse_gtf_exons(gtf_path, chrom, start, end, vertical_spacing=25):
+    per_line_height = 60  # px
     gtf = pysam.TabixFile(gtf_path, parser=pysam.asGTF())
     recs = {}
     for record in gtf.fetch(chrom, start, end):

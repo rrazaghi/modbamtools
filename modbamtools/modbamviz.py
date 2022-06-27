@@ -1,5 +1,6 @@
 from modbamtools.utils import *
 from modbamtools.tracks import *
+from modbamtools.tracks_webgl import *
 from modbamtools.gene_models import *
 
 
@@ -22,6 +23,7 @@ class Plotter:
         track_titles=None,
         heterogeneity=None,
         font_size=18,
+        fmt="html",
     ) -> None:
         self.chrom = chrom
         self.start = start
@@ -35,17 +37,32 @@ class Plotter:
         self.track_titles = track_titles
         self.heterogeneity = heterogeneity
         self.font_size = font_size
-        self.tracks, self.num_tracks = get_tracks(
-            self.chrom,
-            self.start,
-            self.end,
-            self.dicts,
-            self.gtfs,
-            self.beds,
-            self.bigwigs,
-            self.bedgraphs,
-            self.heterogeneity,
-        )
+        self.fmt = fmt
+
+        if self.fmt == "html":
+            self.tracks, self.num_tracks = get_tracks_gl(
+                self.chrom,
+                self.start,
+                self.end,
+                self.dicts,
+                self.gtfs,
+                self.beds,
+                self.bigwigs,
+                self.bedgraphs,
+                self.heterogeneity,
+            )
+        else:
+            self.tracks, self.num_tracks = get_tracks(
+                self.chrom,
+                self.start,
+                self.end,
+                self.dicts,
+                self.gtfs,
+                self.beds,
+                self.bigwigs,
+                self.bedgraphs,
+                self.heterogeneity,
+            )
         self.plot_height, self.row_heights = get_heights(self.tracks)
         if self.track_titles:
             if self.heterogeneity:
@@ -162,7 +179,9 @@ class Plotter:
 
         self.fig.update_xaxes(visible=True, row=i - 1, col=1)
         self.fig.update_xaxes(
-            range=[self.start, self.end], tickformat=",d", title_text="Coordinate"
+            range=[self.start, self.end],
+            tickformat=",d",
+            title_text="Coordinate" + " (" + self.chrom + ")",
         )
         self.fig.update_layout(height=self.plot_height)
         self.fig.update_annotations(font_size=self.font_size)

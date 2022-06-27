@@ -4,12 +4,12 @@ from modbamtools.heterogeneity import get_dict_heterogeneity
 import pyBigWig
 
 
-def parse_bigwig(bigwig_path, chrom, start, end):
+def parse_bigwig_gl(bigwig_path, chrom, start, end):
 
     bw = pyBigWig.open(bigwig_path)
     x = list(range(start, end))
     y = bw.values(chrom, start, end)
-    trace = go.Scatter(
+    trace = go.Scattergl(
         x=x,
         y=y,
         mode="lines",
@@ -24,7 +24,7 @@ def parse_bigwig(bigwig_path, chrom, start, end):
     return trace, height
 
 
-def parse_bedgraph(bedgraph_path, chrom, start, end):
+def parse_bedgraph_gl(bedgraph_path, chrom, start, end):
     x = []
     y = []
     with open(bedgraph_path) as b:
@@ -48,7 +48,7 @@ def parse_bedgraph(bedgraph_path, chrom, start, end):
                             y.append(score)
                             y.append(score)
 
-    trace = go.Scatter(
+    trace = go.Scattergl(
         x=x,
         y=y,
         mode="lines",
@@ -64,14 +64,14 @@ def parse_bedgraph(bedgraph_path, chrom, start, end):
     return trace, height
 
 
-def plot_frequencies(dict_per_read_mod, start, end, color):
+def plot_frequencies_gl(dict_per_read_mod, start, end, color):
     height = 200  # px
 
     traces = []
     freq, freq_smooth = calc_freq(dict_per_read_mod, start, end)
 
     traces.append(
-        go.Scatter(
+        go.Scattergl(
             x=freq["x"],
             y=freq["y"],
             mode="markers",
@@ -85,7 +85,7 @@ def plot_frequencies(dict_per_read_mod, start, end, color):
     )
 
     traces.append(
-        go.Scatter(
+        go.Scattergl(
             x=freq_smooth["x"],
             y=freq_smooth["y"],
             mode="lines",
@@ -101,14 +101,14 @@ def plot_frequencies(dict_per_read_mod, start, end, color):
     return traces, height
 
 
-def plot_freq_diff(
+def plot_freq_diff_gl(
     dict_per_read_mod_hp1, dict_per_read_mod_hp2, start, end, color="grey"
 ):
 
     freq_hp1, freq_smooth_hp1 = calc_freq(dict_per_read_mod_hp1, start, end)
     freq_hp2, freq_smooth_hp2 = calc_freq(dict_per_read_mod_hp2, start, end)
 
-    return go.Scatter(
+    return go.Scattergl(
         x=freq_smooth_hp2["x"],
         y=[a_i - b_i for a_i, b_i in zip(freq_smooth_hp2["y"], freq_smooth_hp1["y"])],
         mode="lines",
@@ -120,7 +120,7 @@ def plot_freq_diff(
     )
 
 
-def parse_bed(bed_path, chrom, start, end):
+def parse_bed_gl(bed_path, chrom, start, end):
 
     with open(bed_path) as b:
         for l in b:
@@ -164,7 +164,7 @@ def parse_bed(bed_path, chrom, start, end):
     return ylim, shapes
 
 
-def make_modbam_trace(dicts, start, end, heterogeneity=None):
+def make_modbam_trace_gl(dicts, start, end, heterogeneity=None):
     colors = px.colors.qualitative.T10
     freq_traces = []
     single_read_traces = []
@@ -173,7 +173,7 @@ def make_modbam_trace(dicts, start, end, heterogeneity=None):
     single_trace_height = 12  # px
 
     for i, sample_dict in enumerate(dicts):
-        freq = plot_frequencies(sample_dict, start, end, color=colors[i])
+        freq = plot_frequencies_gl(sample_dict, start, end, color=colors[i])
         freq_traces.append(freq)
 
         if heterogeneity:
@@ -185,7 +185,7 @@ def make_modbam_trace(dicts, start, end, heterogeneity=None):
         for line, reads in sample_dict.items():
             for read in reads:
                 traces.append(
-                    go.Scatter(
+                    go.Scattergl(
                         mode="lines+markers",
                         line=dict(color=colors[i]),
                         x=list(read[1][2].keys()),
@@ -213,7 +213,7 @@ def make_modbam_trace(dicts, start, end, heterogeneity=None):
     return freq_traces, single_read_traces, het_traces
 
 
-def get_tracks(
+def get_tracks_gl(
     chrom,
     start,
     end,
@@ -235,19 +235,19 @@ def get_tracks(
     if beds:
         tracks["bed"] = []
         for bed in beds:
-            elements = parse_bed_rectangle(bed, chrom, start, end)
+            elements = parse_bed_rectangle_gl(bed, chrom, start, end)
             tracks["bed"].append(elements)
             num_tracks += 1
     if bigwigs:
         tracks["bigwig"] = []
         for bigwig in bigwigs:
-            bw = parse_bigwig(bigwig, chrom, start, end)
+            bw = parse_bigwig_gl(bigwig, chrom, start, end)
             tracks["bigwig"].append(bw)
             num_tracks += 1
     if bedgraphs:
         tracks["bedgraph"] = []
         for bedgraph in bedgraphs:
-            b = parse_bedgraph(bedgraph, chrom, start, end)
+            b = parse_bedgraph_gl(bedgraph, chrom, start, end)
             tracks["bedgraph"].append(b)
             num_tracks += 1
 
@@ -256,7 +256,7 @@ def get_tracks(
         tracks["modbase_freq"] = []
         tracks["modbase"] = []
         if heterogeneity:
-            freq_traces, single_read_traces, het_traces = make_modbam_trace(
+            freq_traces, single_read_traces, het_traces = make_modbam_trace_gl(
                 dicts, start, end, heterogeneity
             )
             tracks["heterogeneity"] = het_traces
@@ -264,7 +264,7 @@ def get_tracks(
             tracks["modbase"] = single_read_traces
             num_tracks += len(dicts) + 2
         else:
-            freq_traces, single_read_traces, het_traces = make_modbam_trace(
+            freq_traces, single_read_traces, het_traces = make_modbam_trace_gl(
                 dicts, start, end
             )
             tracks["modbase_freq"] = freq_traces
@@ -274,18 +274,18 @@ def get_tracks(
     return tracks, num_tracks
 
 
-def get_heights(tracks):
-    heights = []
-    for track_type, sub_tracks in tracks.items():
-        if (track_type == "heterogeneity") & (len(sub_tracks) != 0):
-            heights.append(sub_tracks[0][-1])
-            continue
-        if track_type == "modbase_freq":
-            heights.append(sub_tracks[0][-1])
-            continue
-        for track in sub_tracks:
-            heights.append(track[-1])
-    plot_height = sum(heights)
-    row_heights = [x / plot_height for x in heights]
-    # print(row_heights)
-    return plot_height, row_heights
+# def get_heights(tracks):
+#     heights = []
+#     for track_type, sub_tracks in tracks.items():
+#         if (track_type == "heterogeneity") & (len(sub_tracks) != 0):
+#             heights.append(sub_tracks[0][-1])
+#             continue
+#         if track_type == "modbase_freq":
+#             heights.append(sub_tracks[0][-1])
+#             continue
+#         for track in sub_tracks:
+#             heights.append(track[-1])
+#     plot_height = sum(heights)
+#     row_heights = [x / plot_height for x in heights]
+#     # print(row_heights)
+#     return plot_height, row_heights
