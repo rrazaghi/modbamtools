@@ -286,5 +286,4 @@ def get_reads(
                 bam, chrom, start, end, min_prob=min_prob, max_prob=max_prob
             )
             dicts.append(reads)
-
     return dicts, titles

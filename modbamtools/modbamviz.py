@@ -88,17 +88,18 @@ class Plotter:
                     + ["Methylation Frequency"]
                     + self.samp_names
                 )
-
+        assert self.num_tracks == len(self.titles)
         # self.tracks_titles = ["Genes","Enhancers","Methylation frequency plots"]
         self.fig = make_subplots(
             rows=self.num_tracks,
             cols=1,
             shared_xaxes=True,
-            vertical_spacing=0.02,
+            vertical_spacing=50 / self.plot_height,
             row_heights=self.row_heights,
             subplot_titles=self.titles,
         )
         self.fig.update_layout(font=dict(size=self.font_size))
+        self.fig.update_layout(height=self.plot_height)
 
     def plot_tracks(self):
         """
@@ -183,5 +184,5 @@ class Plotter:
             tickformat=",d",
             title_text="Coordinate" + " (" + self.chrom + ")",
         )
-        self.fig.update_layout(height=self.plot_height)
+        # self.fig.update_layout(height=self.plot_height)
         self.fig.update_annotations(font_size=self.font_size)

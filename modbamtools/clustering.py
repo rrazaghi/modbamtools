@@ -76,7 +76,9 @@ def cluster2dicts(bams, chrom, start, end, min_cov=0.9):
         if new_id not in out.keys():
             out[new_id] = {}
         out[new_id][read_id] = dict_per_read_mod[read_id]
+
     out = collections.OrderedDict(sorted(out.items()))
     names = ["Cluster " + str(cl) for cl in out.keys()]
     dicts = [v for v in out.values()]
+
     return dicts, names
