@@ -164,7 +164,7 @@ def parse_bed_gl(bed_path, chrom, start, end):
     return ylim, shapes
 
 
-def make_modbam_trace_gl(dicts, start, end, heterogeneity=None):
+def make_modbam_trace_gl(dicts, start, end, heterogeneity=None, marker_size=6):
     colors = px.colors.qualitative.T10
     freq_traces = []
     single_read_traces = []
@@ -200,7 +200,7 @@ def make_modbam_trace_gl(dicts, start, end, heterogeneity=None):
                         #             },
                         marker={
                             "color": list(map(SetColor, list(read[1][2].values()))),
-                            "size": 6,
+                            "size": marker_size,
                             "symbol": "square",
                         },
                         name=read[0],
@@ -223,6 +223,7 @@ def get_tracks_gl(
     bigwigs=None,
     bedgraphs=None,
     heterogeneity=None,
+    marker_size=6,
 ):
     tracks = {}
     num_tracks = 0
@@ -257,7 +258,7 @@ def get_tracks_gl(
         tracks["modbase"] = []
         if heterogeneity:
             freq_traces, single_read_traces, het_traces = make_modbam_trace_gl(
-                dicts, start, end, heterogeneity
+                dicts, start, end, heterogeneity, marker_size
             )
             tracks["heterogeneity"] = het_traces
             tracks["modbase_freq"] = freq_traces
@@ -265,7 +266,7 @@ def get_tracks_gl(
             num_tracks += len(dicts) + 2
         else:
             freq_traces, single_read_traces, het_traces = make_modbam_trace_gl(
-                dicts, start, end
+                dicts, start, end, marker_size=marker_size
             )
             tracks["modbase_freq"] = freq_traces
             tracks["modbase"] = single_read_traces

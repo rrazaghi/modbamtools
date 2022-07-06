@@ -185,6 +185,22 @@ def listify(ctx, param, value):
     type=int,
     help="global font size",
 )
+@click.option(
+    "-ms",
+    "--marker_size",
+    is_flag=False,
+    default=6,
+    type=int,
+    help="marker size of each modified/unmodified base",
+)
+@click.option(
+    "-sth",
+    "--single_trace_height",
+    is_flag=False,
+    default=12,
+    type=int,
+    help="space between single molucles in px",
+)
 def plot(
     bams,
     region,
@@ -207,6 +223,8 @@ def plot(
     cluster,
     heterogeneity,
     font_size,
+    marker_size,
+    single_trace_height,
 ):
     "Plot single-read base modification data"
     if batch:
@@ -262,6 +280,8 @@ def plot(
                     heterogeneity=heterogeneity,
                     font_size=font_size,
                     fmt=fmt,
+                    marker_size=marker_size,
+                    single_trace_height=single_trace_height,
                 )
                 plot.plot_tracks()
                 if height:
@@ -325,6 +345,8 @@ def plot(
             heterogeneity=heterogeneity,
             font_size=font_size,
             fmt=fmt,
+            marker_size=marker_size,
+            single_trace_height=single_trace_height,
         )
         fig.plot_tracks()
         if height:
@@ -336,8 +358,11 @@ def plot(
 
         if fmt == "html":
             fig.fig.write_html(out_path)
+            # print(fig.fig.layout.height)
         else:
             fig.fig.write_image(out_path)
+            # fig.fig.write_image(out_path, width=5 * 96, height=fig.plot_height, scale=1)
+            # print(fig.fig.layout.height)
     else:
         click.echo(
             "Please choose either a region (--region) or bed file of regions (--batch) to process"

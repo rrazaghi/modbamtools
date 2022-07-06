@@ -24,6 +24,8 @@ class Plotter:
         heterogeneity=None,
         font_size=18,
         fmt="html",
+        marker_size=6,
+        single_trace_height=12,
     ) -> None:
         self.chrom = chrom
         self.start = start
@@ -38,6 +40,8 @@ class Plotter:
         self.heterogeneity = heterogeneity
         self.font_size = font_size
         self.fmt = fmt
+        self.marker_size = marker_size
+        self.single_trace_height = single_trace_height
 
         if self.fmt == "html":
             self.tracks, self.num_tracks = get_tracks_gl(
@@ -50,6 +54,8 @@ class Plotter:
                 self.bigwigs,
                 self.bedgraphs,
                 self.heterogeneity,
+                self.marker_size,
+                self.single_trace_height,
             )
         else:
             self.tracks, self.num_tracks = get_tracks(
@@ -62,7 +68,10 @@ class Plotter:
                 self.bigwigs,
                 self.bedgraphs,
                 self.heterogeneity,
+                self.marker_size,
+                self.single_trace_height,
             )
+        # print(self.num_tracks, self.track_titles)
         self.plot_height, self.row_heights = get_heights(self.tracks)
         if self.track_titles:
             if self.heterogeneity:
@@ -97,6 +106,7 @@ class Plotter:
             vertical_spacing=50 / self.plot_height,
             row_heights=self.row_heights,
             subplot_titles=self.titles,
+            x_title="Coordinate" + " (" + self.chrom + ")",
         )
         self.fig.update_layout(font=dict(size=self.font_size))
         self.fig.update_layout(height=self.plot_height)
@@ -171,18 +181,37 @@ class Plotter:
                         freq_traces[0], rows=[freq_row, freq_row], cols=[1, 1]
                     )
                     self.fig.update_xaxes(visible=False, row=freq_row, col=1)
+                    # self.fig.update_yaxes(range=(-20, 120), row=freq_row, col=1)
 
                     for trace in single_read_traces[0]:
                         self.fig.add_trace(trace, row=i, col=1)
                     self.fig.update_xaxes(visible=False, row=i, col=1)
                     self.fig.update_yaxes(visible=False, row=i, col=1)
+                    self.fig.update_yaxes(
+                        range=(
+                            -1 * (single_read_traces[1] / self.single_trace_height + 1),
+                            1,
+                        ),
+                        visible=False,
+                        row=i,
+                        col=1,
+                    )
+
                     i += 1
 
         self.fig.update_xaxes(visible=True, row=i - 1, col=1)
         self.fig.update_xaxes(
             range=[self.start, self.end],
-            tickformat=",d",
-            title_text="Coordinate" + " (" + self.chrom + ")",
+            # tickformat=",d",
+            # title_text="Coordinate" + " (" + self.chrom + ")",
+            row=i - 1,
+            col=1,
         )
-        # self.fig.update_layout(height=self.plot_height)
         self.fig.update_annotations(font_size=self.font_size)
+        self.fig.update_layout(
+            height=self.plot_height,
+            # width=8 * 96,
+            # autosize=False,
+            margin=dict(l=10, r=10, t=30, b=60),
+        )
+        # self.fig.update_yaxes(constrain="domain")

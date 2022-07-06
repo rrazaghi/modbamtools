@@ -205,6 +205,7 @@ def parse_gtf_exons(gtf_path, chrom, start, end, vertical_spacing=25):
                     mode="text",
                     textposition=record[1][2][1],
                     showlegend=False,
+                    textfont=dict(size=14),
                 )
             )
 
@@ -235,7 +236,7 @@ def parse_gtf_exons(gtf_path, chrom, start, end, vertical_spacing=25):
 
         i -= vertical_spacing
 
-    ylim = [i, 20]
+    ylim = [i + vertical_spacing / 2, 20]
     height = (abs(row) + 1) * per_line_height
 
     return ylim, name_traces, shapes, height

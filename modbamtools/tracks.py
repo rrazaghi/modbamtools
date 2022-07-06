@@ -1,3 +1,4 @@
+from turtle import width
 from modbamtools.utils import *
 from modbamtools.gene_models import *
 from modbamtools.heterogeneity import get_dict_heterogeneity
@@ -164,13 +165,15 @@ def parse_bed(bed_path, chrom, start, end):
     return ylim, shapes
 
 
-def make_modbam_trace(dicts, start, end, heterogeneity=None):
+def make_modbam_trace(
+    dicts, start, end, heterogeneity=None, marker_size=6, single_trace_height=12
+):
     colors = px.colors.qualitative.T10
     freq_traces = []
     single_read_traces = []
     traces_height = []
     het_traces = []
-    single_trace_height = 12  # px
+    # single_trace_height = 12  # px
 
     for i, sample_dict in enumerate(dicts):
         freq = plot_frequencies(sample_dict, start, end, color=colors[i])
@@ -187,7 +190,7 @@ def make_modbam_trace(dicts, start, end, heterogeneity=None):
                 traces.append(
                     go.Scatter(
                         mode="lines+markers",
-                        line=dict(color=colors[i]),
+                        line=dict(color=colors[i], width=marker_size / 2),
                         x=list(read[1][2].keys()),
                         y=np.full(len(read[1][2].keys()), line),
                         connectgaps=True,
@@ -200,7 +203,7 @@ def make_modbam_trace(dicts, start, end, heterogeneity=None):
                         #             },
                         marker={
                             "color": list(map(SetColor, list(read[1][2].values()))),
-                            "size": 6,
+                            "size": marker_size,
                             "symbol": "square",
                         },
                         name=read[0],
@@ -223,6 +226,8 @@ def get_tracks(
     bigwigs=None,
     bedgraphs=None,
     heterogeneity=None,
+    marker_size=6,
+    single_trace_height=12,
 ):
     tracks = {}
     num_tracks = 0
@@ -257,7 +262,12 @@ def get_tracks(
         tracks["modbase"] = []
         if heterogeneity:
             freq_traces, single_read_traces, het_traces = make_modbam_trace(
-                dicts, start, end, heterogeneity
+                dicts,
+                start,
+                end,
+                heterogeneity,
+                marker_size,
+                single_trace_height=single_trace_height,
             )
             tracks["heterogeneity"] = het_traces
             tracks["modbase_freq"] = freq_traces
@@ -265,7 +275,11 @@ def get_tracks(
             num_tracks += len(dicts) + 2
         else:
             freq_traces, single_read_traces, het_traces = make_modbam_trace(
-                dicts, start, end
+                dicts,
+                start,
+                end,
+                marker_size=marker_size,
+                single_trace_height=single_trace_height,
             )
             tracks["modbase_freq"] = freq_traces
             tracks["modbase"] = single_read_traces
@@ -279,13 +293,17 @@ def get_heights(tracks):
     for track_type, sub_tracks in tracks.items():
         if (track_type == "heterogeneity") & (len(sub_tracks) != 0):
             heights.append(sub_tracks[0][-1])
+            # print("heterogeneity", sub_tracks[0][-1])
             continue
         if track_type == "modbase_freq":
             heights.append(sub_tracks[0][-1])
+            # print("modbase_freq", sub_tracks[0][-1])
             continue
         for track in sub_tracks:
             heights.append(track[-1])
+            # print(track_type, track[-1])
     plot_height = sum(heights)
+    # print(plot_height)
     row_heights = [x / plot_height for x in heights]
     # print(row_heights)
     return plot_height, row_heights
