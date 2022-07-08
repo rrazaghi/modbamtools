@@ -16,7 +16,9 @@ modbamtools is technology agnostic. However, tools tailored for analysis of modi
 [Remora](https://github.com/nanoporetech/remora)
 
 **Pacific Biosciences (Pacbio)**  
-[Primrose](https://github.com)
+[Primrose](https://github.com)  
+[ccsmeth](https://github.com/PengNi/ccsmeth)
+
 
 ### Haplotypes
 

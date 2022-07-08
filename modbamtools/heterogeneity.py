@@ -109,7 +109,12 @@ def get_region_hap_heterogeneity(bam, min_calls, min_cov, hp, bed_line):
         mean, std, cov = get_region_heterogeneity(
             bam, chrom, start, end, min_calls, min_cov
         )
-        bed_line.extend(map(str, [mean, std, cov],))
+        bed_line.extend(
+            map(
+                str,
+                [mean, std, cov],
+            )
+        )
 
     return bed_line
 
@@ -180,22 +185,28 @@ def get_dict_heterogeneity(samp_dict, start, end, color):
     traces = []
 
     traces.append(
-        go.Scattergl(
+        go.Scatter(
             x=het_dict["x"],
             y=het_dict["y"],
             mode="markers",
-            marker=dict(size=3, color=color,),
+            marker=dict(
+                size=3,
+                color=color,
+            ),
             name="",
             showlegend=False,
         )
     )
 
     traces.append(
-        go.Scattergl(
+        go.Scatter(
             x=het_dict["x"],
             y=het_dict["y_smooth"],
             mode="lines",
-            marker=dict(size=3, color=color,),
+            marker=dict(
+                size=3,
+                color=color,
+            ),
             name="",
             showlegend=False,
         )
@@ -275,4 +286,3 @@ def get_plot_heterogeneity(bam, chrom, start, end, hp, min_calls=5, min_cov=80):
         track_height = 100  # px
 
         return het, track_height
-

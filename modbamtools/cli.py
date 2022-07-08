@@ -190,7 +190,7 @@ def listify(ctx, param, value):
     "--marker_size",
     is_flag=False,
     default=6,
-    type=int,
+    type=float,
     help="marker size of each modified/unmodified base",
 )
 @click.option(
