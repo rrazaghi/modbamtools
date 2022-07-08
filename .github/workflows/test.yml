@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     # - uses: actions/checkout@v3
@@ -22,7 +22,9 @@ jobs:
     #     restore-keys: |
     #       ${{ runner.os }}-pip-
     - name: Install cURL Headers
-      run: sudo apt-get update & sudo apt-get install libcurl4-openssl-dev --fix-missing
+      run: |
+        sudo apt-get update
+        sudo apt-get install libcurl4-openssl-dev
     - name: Install dependencies
       run: |
         pip install --upgrade pip
