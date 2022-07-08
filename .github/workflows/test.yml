@@ -21,8 +21,8 @@ jobs:
     #     key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
     #     restore-keys: |
     #       ${{ runner.os }}-pip-
-    # - name: Install cURL Headers
-    #   run: sudo apt-get install libcurl4-openssl-dev
+    - name: Install cURL Headers
+      run: sudo apt-get install libcurl-dev
     - name: Install dependencies
       run: |
         pip install --upgrade pip
