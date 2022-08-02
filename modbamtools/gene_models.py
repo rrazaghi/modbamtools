@@ -35,18 +35,18 @@ def record_text_plot(record_start, record_end, start, end):
     """
     plot gene models texts (names)
     """
-    if (record_start > start) & (record_end > end):
-        x = [record_start]
-        textpos = "top right"
-    elif (record_start < start) & (record_end < end):
-        x = [record_end]
-        textpos = "top left"
+    if (record_start <= start) & (record_end >= end):
+        x = [(start + end) / 2]
+        textpos = "top center"
     elif (record_start >= start) & (record_end <= end):
         x = [(record_start + record_end) / 2]
         textpos = "top center"
-    elif (record_start < start) & (record_end > end):
-        x = [(start + end) / 2]
-        textpos = "top center"
+    elif (record_start >= start) & (record_end >= end):
+        x = [record_start]
+        textpos = "top right"
+    elif (record_start <= start) & (record_end <= end):
+        x = [record_end]
+        textpos = "top left"
 
     return (x, textpos)
 

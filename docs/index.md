@@ -49,7 +49,7 @@ In a **clean** environment:
 
 ## How to cite modbamtools
 If you use modbamtools in your research please cite modbamtools preprint:  
-https://www.biorxiv.org/content/10.1101/2022.07.07.499188v1
+<https://www.biorxiv.org/content/10.1101/2022.07.07.499188v1>
 
 ## Acknowledgment
 

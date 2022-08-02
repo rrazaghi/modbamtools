@@ -125,6 +125,8 @@
                 
             <li class="second-level"><a href="#commands">Commands</a></li>
                 
+            <li class="second-level"><a href="#how-to-cite-modbamtools">How to cite modbamtools</a></li>
+                
             <li class="second-level"><a href="#acknowledgment">Acknowledgment</a></li>
                 
     </ul>
@@ -144,13 +146,16 @@
 <a href="https://github.com/nanoporetech/megalodon">Megalodon</a><br />
 <a href="https://github.com/nanoporetech/remora">Remora</a></p>
 <p><strong>Pacific Biosciences (Pacbio)</strong><br />
-<a href="https://github.com">Primrose</a></p>
+<a href="https://github.com">Primrose</a><br />
+<a href="https://github.com/PengNi/ccsmeth">ccsmeth</a></p>
 <h3 id="haplotypes">Haplotypes</h3>
 <p>modbamtools commands can parse information per haplotype based on the presence of <code>HP</code> tag in your modbam files. You can find some of the tools to generate this tag below:<br />
 <a href="https://github.com/kishwarshafin/pepper">PEPPER</a><br />
-<a href="https://whatshap.readthedocs.io/en/latest/">WhatsHap</a></p>
+<a href="https://whatshap.readthedocs.io/en/latest/">WhatsHap</a><br />
+<a href="https://github.com/HKU-BAL/Clair3">Clair3</a><br />
+<a href="https://github.com/twolinin/LongPhase/">LongPhase</a></p>
 <h2 id="install">Install</h2>
-<p><strong><em>Required</em></strong>: Python 3.8</p>
+<p><strong><em>Required</em></strong>: Python &gt;=3.8 , &lt;=3.10</p>
 <p>In a <strong>clean</strong> environment: </p>
 <pre><code class="shell">$ pip install modbamtools</code></pre>
 
@@ -159,9 +164,14 @@
 <li><code>modbamtools plot</code> - Plot single-read base modification data along other optional tracks (gtf, bedgraph, bigwig).</li>
 <li><code>modbamtools calcMeth</code> - Calculate methylation statistics for regions in a bed file.</li>
 <li><code>modbamtools cluster</code> - Perform clustering based on modification state for regions in a bed file.</li>
+<li><code>modbamtools calcHet</code> - Calculate heterogeneity of modified bases for regions in a bed file.</li>
 <li><code>modbamtools --help</code> - Print help message and exit.</li>
 </ul>
-<h2 id="acknowledgment">Acknowledgment</h2></div>
+<h2 id="how-to-cite-modbamtools">How to cite modbamtools</h2>
+<p>If you use modbamtools in your research please cite modbamtools preprint:<br />
+<a href="https://www.biorxiv.org/content/10.1101/2022.07.07.499188v1">https://www.biorxiv.org/content/10.1101/2022.07.07.499188v1</a></p>
+<h2 id="acknowledgment">Acknowledgment</h2>
+<p>We would like to thank Jared Simpson and Chris Wright for their helpful comments and contributions to the development of modified base alignment files.</p></div>
         
         
     </div>
@@ -266,5 +276,5 @@
 
 <!--
 MkDocs version : 1.3.0
-Build Date UTC : 2022-04-10 23:32:25.363255+00:00
+Build Date UTC : 2022-07-11 15:09:05.441613+00:00
 -->
